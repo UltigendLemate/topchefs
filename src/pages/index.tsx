@@ -1,9 +1,5 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import { signOut} from "next-auth/react";
-import Head from "next/head";
 import DefaultLayout from "~/components/Layout/default";
-import { getServerSession } from "next-auth";
-import { authOptions } from "~/server/auth";
 import { useSession } from 'next-auth/react'
 import NextLink from "next/link";
 import { Link } from "@nextui-org/link";
