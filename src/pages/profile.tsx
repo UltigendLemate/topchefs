@@ -1,7 +1,7 @@
 import React from 'react'
 import DefaultLayout from '~/components/Layout/default'
-import { useState, useEffect } from 'react';
-import {Input, Select, SelectItem, Textarea, Tooltip} from "@nextui-org/react";
+import { useState, useEffect,ChangeEventHandler } from 'react';
+import {Checkbox, Input, Select, SelectItem, Textarea, Tooltip, Image} from "@nextui-org/react";
 import { title, subtitle } from "~/components/primitives";
 import {EditIcon, FacebookIcon, GlobeIcon, InstaIcon, LinkedinIcon, SnapchatIcon, TwitterIcon} from "~/components/icons";
 
@@ -85,17 +85,77 @@ const cities = [
     "Bachelor's Degree",
     "Master's Degree",
     "Doctorate or Ph.D."
-  ];
-  
-  
+  ];  
   // Sort the array alphabetically
   cities.sort();
+
+  const CuisineSpecialization = [
+    "Catering Services",
+    "Celebrity Chefs",
+    "Cooking Classes",
+    "Culinary Consulting",
+    "Culinary Educators",
+    "Desserts and Pastry",
+    "Fine Dining",
+    "Food Bloggers",
+    "Food Styling and Photography",
+    "Fusion Cuisine",
+    "Home Cooks and Amateurs",
+    "Indian Cuisine",
+    "International Cuisine",
+    "Private Dining Experiences",
+    "Regional Cuisine",
+    "Restaurant Chefs",
+    "Seafood Specialties",
+    "Street Food",
+    "Vegan Cuisine",
+    "Vegetarian Cuisine",
+  ];
+
+  const SpecialTags = [
+    "Artisanal Baker",
+    "Award-Winning Chef",
+    "Cookbook Author",
+    "Cooking Show Host",
+    "Curry Maestro",
+    "Dessert Artisan",
+    "Farm-to-Table Advocate",
+    "Food Critic",
+    "Healthy Cooking",
+    "MasterChef India Contestant",
+    "Michelin-Starred Chef",
+    "Molecular Gastronomy",
+    "Sustainable Cooking",
+    "Spice Expert",
+    "Tandoor Specialist",
+    "Traditional Cooking Methods",
+    "Wine and Food Pairing",
+  ];
+
+  
   
 
 
 const Profile = () => {
+  const [eventImage, setEventImage] = useState<File | null>(null);
 
-  const [value, setvalue] = useState("9711091823")
+  const dndHandler = (img: FileList) => {
+    const file = Array.from(img)[0];
+    setEventImage(file!);
+  };
+
+  
+  const setUploadFiles = (files: FileList) => {
+    dndHandler(files);
+  };
+  
+  const handleChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+    e.preventDefault();
+    if (e.target.files) {
+      setUploadFiles(e.target.files);
+    }
+  };
+
   
   return (
     <DefaultLayout>
@@ -200,26 +260,77 @@ const Profile = () => {
         <h1 className={title({ size: "sm", color: "yellow" })}>Showcase Your Expertise!</h1> 
         <h2 className={subtitle()}>This section is only avaiable to premium plan users!</h2>
         
-        <Input type="text" variant="underlined"  label="Address"  /> 
+        <Input type="text" variant="underlined"  label="Achievements/Awards (max 50 words)"  /> 
 
-        <Input type="number" variant="underlined"   description="How many years of culinary experience do you have?"  label="Experience (Number of years)"  /> 
-        
+        <Select 
+            variant="underlined"
+            label="Cuisine Specialization" 
+            selectionMode="multiple"
+            className="max-w-xs" 
+            description="Select all that apply"
+            
+          >
+            {CuisineSpecialization.map((option) => (
+              <SelectItem key={option} value={option}>
+                {option}
+              </SelectItem>
+            ))}
+          </Select>
         <Textarea
         minRows={1}
-          label="Brief Introduction (max 50 words)"
+          label="Previous work place(s)"
           variant="underlined"
           className='mt-3'
         />
 
-        <div className='grid grid-cols-2 gap-x-3 '>
-          
-        <Input type="url" variant="underlined" classNames={{input : "text-xs"}} placeholder="Website" startContent={<GlobeIcon/>}  /> 
-        <Input type="url" variant="underlined" classNames={{input : "text-xs"}} placeholder="Instagram" startContent={<InstaIcon/>}  /> 
-        <Input type="url" variant="underlined" classNames={{input : "text-xs"}} placeholder="Facebook" startContent={<FacebookIcon/>}  /> 
-        <Input type="url" variant="underlined" classNames={{input : "text-xs"}} placeholder="Twitter" startContent={<TwitterIcon/>}  /> 
-        <Input type="url" variant="underlined" classNames={{input : "text-xs"}} placeholder="Snapchat" startContent={<SnapchatIcon/>}  /> 
-        <Input type="url" variant="underlined" classNames={{input : "text-xs"}} placeholder="Linkedin" startContent={<LinkedinIcon/>}  /> 
-        </div>
+<div>
+      <h1>Image Input</h1>
+      <input type="file" onChange={handleChange} />
+
+      {eventImage && (
+        <Image
+          src={URL.createObjectURL(eventImage)}
+          width={200}
+          height={200}
+          alt="Uploaded image"
+        />
+      )}
+    </div>
+
+        <Select 
+            variant="underlined"
+            label="Speciality Tags" 
+            selectionMode="multiple"
+            className="max-w-xs" 
+            description="Select all that apply"
+            
+          >
+            {SpecialTags.map((option) => (
+              <SelectItem key={option} value={option}>
+                {option}
+              </SelectItem>
+            ))}
+          </Select>
+
+
+        <Input type="text"  variant="underlined"  label="Which brand(s) do you endorse?"  /> 
+        
+        <Textarea
+        minRows={1}
+          label="Have you made any media appearances?"
+          variant="underlined"
+          className='mt-3'
+        />
+        <Textarea
+        minRows={1}
+          label="Are you a member of any chef association?"
+          variant="underlined"
+          className='mt-3'
+        />
+
+<Checkbox defaultSelected radius="full" classNames={{label:"text-xs"}} className='my-2'>I am available for Private Events/Brand endorsements.</Checkbox>
+
+        
         
 
         
