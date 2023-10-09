@@ -48,13 +48,93 @@ model Session {
 
 model User {
     id            String    @id @default(cuid())
+    role          Role      @default(Free)
+     accounts      Account[]
+    sessions      Session[]
+    createdAt     DateTime  @default(now())
     name          String?
     email         String?   @unique
     emailVerified DateTime?
+    phone         String?
+    currentDes   String?
+    Establishment String?
+    City         City?
+    Address String?
+    Education   String?
+    Experience Int?
+    Intro String?
     image         String?
-    accounts      Account[]
-    sessions      Session[]
-    createdAt     DateTime  @default(now())
+    linkedin String?
+    instagram String?
+    website String?
+    facebook     String?
+    snapchat String?
+    twitter String?
+    ChefImage String?
+    Awards String?
+    CuisineSpecialization CuisineSpecialization[]
+    PrevWork String?
+    SignatureDish String[]
+    Speciality SpecialityTags[]
+    BrandEndorsed String?
+    MediaAppearance String?
+    AvailableFor  Boolean?
+    MemberForChef String?
+}
+enum Role {
+    Premium
+    Starter
+    Free
+}
+
+model CuisineSpecialization {
+    id    String @id @default(cuid())
+    name  String @unique
+    Users User[]
+}
+model SpecialityTags {
+    id    String @id @default(cuid())
+    name  String @unique
+    Users User[]
+}
+
+
+
+enum City {
+    
+  Agra
+  Ahmedabad
+  Amritsar
+  Bangalore
+  Bhopal
+  Bhubaneswar
+  Chandigarh
+  Chennai
+  Coimbatore
+  Dehradun
+  Gandhinagar
+  Guwahati
+  Hyderabad
+  Indore
+  Jaipur
+  Jammu
+  Kochi
+  Kolkata
+  Lucknow
+  Mumbai
+  Nagpur
+  New_Delhi
+  Outside_India
+  Other
+  Patna
+  Pune
+  Raipur
+  Ranchi
+  Shimla
+  Thiruvananthapuram
+  Varanasi
+  Visakhapatnam
+
 }
 
 model VerificationToken {

@@ -1,0 +1,33 @@
+import { z } from "zod";
+
+
+export const UserSchema = z.object({
+    name: z.string(),
+    email: z.string().email(),
+    emailVerified: z.date().optional(),
+    phone: z.string(),
+    currentDes: z.string().optional(),
+    Establishment: z.string().optional(),
+    City: z.string().optional(),
+    Address: z.string().optional(),
+    Education: z.string().optional(),
+    Experience: z.number().optional(),
+    Intro: z.string().optional(),
+    image: z.string().optional(),
+    linkedin: z.string().optional(),
+    instagram: z.string().optional(),
+    website: z.string().optional(),
+    facebook: z.string().optional(),
+    snapchat: z.string().optional(),
+    twitter: z.string().optional(),
+    ChefImage: z.string().optional(),
+    Awards: z.string().optional(),
+    CuisineSpecialization: z.array(z.string()).optional(),
+    PrevWork: z.string().optional(),
+    SignatureDish: z.array(z.string()).optional(),
+    Speciality: z.array(z.string()).optional(),
+    BrandEndorsed: z.string().optional(),
+    MediaAppearance: z.string().optional(),
+    AvailableFor: z.boolean().optional(),
+    MemberForChef: z.string().optional(),
+  });

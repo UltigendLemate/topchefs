@@ -10,8 +10,9 @@ import { button as buttonStyles } from "@nextui-org/theme";
 import { title, subtitle } from "~/components/primitives";
 
 export default function Home() {
-  const session = useSession();
-  console.log(session)
+  const { data } = useSession();
+  const session  = useSession();
+  
 
   return (
     <DefaultLayout >
