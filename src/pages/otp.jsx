@@ -28,9 +28,10 @@ const Otp = () => {
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState('1:59');
   const handleClick = () => {
+
     setIsTimerRunning(true);
     setDisabled(true);
-    //handleSubmit();
+    handleSubmit();
   };
   const [disabled, setDisabled] = useState(false); //send otp button disabled
   const [otpsent, setOtpsent] = useState(false) //initially false, when send otp is pressed, 
@@ -87,7 +88,7 @@ const Otp = () => {
 
         {otpsent && <div className='flex items-center text-center my-4 gap-3 '>
         <Input type="text" variant="bordered" label="Enter OTP"  />   
-        <Button color='success' variant='flat'  className=''>Verify OTP</Button>
+        <Button color='success' variant='flat'  className='' >Verify OTP</Button>
         </div>}
         <Button color='success' variant='shadow' isDisabled={!verified}>Next</Button>
         </form>

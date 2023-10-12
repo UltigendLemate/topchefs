@@ -28,6 +28,8 @@ export const env = createEnv({
     TWILIO_VERIFY_SERVICE_SID: z.string(),
     GOOGLE_CLIENT_ID: z.string(),
     GOOGLE_CLIENT_SECRET: z.string(),
+    CLOUDINARY_KEY : z.string(),
+CLOUDINARY_PRESET : z.string()
   },
 
   /**
@@ -53,6 +55,8 @@ export const env = createEnv({
     TWILIO_VERIFY_SERVICE_SID: process.env.TWILIO_VERIFY_SERVICE_SID,
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
+    CLOUDINARY_KEY : process.env.CLOUDINARY_KEY ,
+    CLOUDINARY_PRESET : process.env.CLOUDINARY_PRESET
   },
   /**
    * Run build or dev with SKIP_ENV_VALIDATION to skip env validation.
