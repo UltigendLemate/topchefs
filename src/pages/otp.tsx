@@ -5,6 +5,7 @@ import { Input, Button } from "@nextui-org/react";
 import moment from "moment";
 import { title, subtitle } from "~/components/primitives";
 import { set } from 'zod';
+import { env } from "~/env.mjs";
 
 
 type OtpSession = {
@@ -23,7 +24,7 @@ const Otp = () => {
   const [timeRemaining, setTimeRemaining] = useState('1:59');
 
   const handleSubmit = (phone : string) => {
-    fetch(`https://2factor.in/API/V1/780d11be-63c1-11ee-addf-0200cd936042/SMS/${phone}/AUTOGEN`, {
+    fetch(`https://2factor.in/API/V1/${env.SMS_OTP_KEY}/SMS/${phone}/AUTOGEN`, {
       method: 'GET',
       redirect: 'follow'
     })
@@ -48,7 +49,7 @@ const Otp = () => {
   };
 
   const verifyOtp = (otp : string) => {
-    fetch(`https://2factor.in/API/V1/780d11be-63c1-11ee-addf-0200cd936042/SMS/VERIFY/${otpSession}/${otp}`, {
+    fetch(`https://2factor.in/API/V1/${env.SMS_OTP_KEY}/SMS/VERIFY/${otpSession}/${otp}`, {
       method: 'GET',
       redirect: 'follow'
     })
