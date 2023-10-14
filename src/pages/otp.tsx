@@ -132,6 +132,8 @@ const Otp = () => {
               type="text"
               variant="bordered"
               className=""
+              value={phone || ""}
+              onValueChange={(item: string) => setphone(item)}
               label="Phone Number"
             />
           </div>
@@ -139,12 +141,12 @@ const Otp = () => {
           {/* timer running ends */}
           {otpsent && (
             <div className="my-4 flex items-center gap-3 text-center ">
-              <Input type="text" variant="bordered" label="Enter OTP" />
+              <Input type="text" value={OTP} onValueChange={(item: string) => setOTP(item)} variant="bordered" label="Enter OTP" />
             </div>
           )}
           <div className={`grid grid-cols-1 gap-3`}>
             {otpsent ? (
-              <Button color="success" variant="flat" className="">
+              <Button color="success" variant="flat" onClick={()=>verifyOtp(OTP)} className="">
                 Verify OTP
               </Button>
             ) : (
@@ -186,7 +188,7 @@ const Otp = () => {
               in {timeRemaining}
             </p>
           )}
-          {verified && (
+          {verified == "Success" && (
             <div className="grid">
               <Button
                 color="success"
