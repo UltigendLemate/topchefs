@@ -1,3 +1,4 @@
+/*eslint-disable*/
 import React from "react";
 import { useState, useEffect } from "react";
 import DefaultLayout from "~/components/Layout/default";
@@ -6,13 +7,24 @@ import moment from "moment";
 import { title, subtitle } from "~/components/primitives";
 import { set } from 'zod';
 import { env } from "~/env.mjs";
+const prisma = new PrismaClient();
+import { PrismaClient } from "@prisma/client";
 
+import { GetServerSideProps } from 'next';
+import { getSession, signIn, useSession } from "next-auth/react";
 
 type OtpSession = {
   Details: string;
   Status: string;
 }
 const Otp = () => {
+  const session  = useSession();
+  // console.log(session);
+  // useEffect(() => {
+  //   if (session?.status == "unauthenticated" && typeof window !== 'undefined') {
+  //     signIn('google');
+  //   }
+  // }, [session]);
   const [otpSession, setotpSession] = useState('');
   const [OTP, setOTP] = useState('');
   const [phone, setphone] = useState('');
@@ -22,6 +34,7 @@ const Otp = () => {
   const [verified, setverified] = useState('');
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState('1:59');
+
 
   const handleSubmit = (phone : string) => {
     fetch(`https://2factor.in/API/V1/${env.SMS_OTP_KEY}/SMS/${phone}/AUTOGEN`, {
@@ -206,5 +219,47 @@ const Otp = () => {
     </DefaultLayout>
   );
 };
+
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { req } = context
+  const session = await getSession({ req })
+
+  if (!session?.user) {
+    return {
+      redirect: {
+        destination: '/auth',
+        permanent: false,
+      },
+    }
+  }
+
+  const user = await prisma.user.findUnique({ where: { id: session.user.id } })
+  if (!user) {
+    return {
+      redirect: {
+        destination: '/auth',
+        permanent: false,
+      },
+    }
+  }
+  // if (user.role !== Role.SuperAdmin) {
+  //   return {
+  //     redirect: {
+  //       destination: '/dashboard',
+  //       permanent: false,
+  //     },
+  //   }
+  // }
+
+
+
+  return {
+    props: {
+      role: user.role,
+    },
+  }
+}
+
 
 export default Otp;
