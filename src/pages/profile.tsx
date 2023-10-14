@@ -80,11 +80,11 @@ const Profile = (props : { session : { data: { user: { id: String, email : Strin
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ ...data, id: session?.data?.user.id }),
+        body: JSON.stringify({ ...data, id: props.session?.data?.user.id }),
       });
       // Handle the response
       if (response.ok) {
-        console.log(response)
+        console.log(response.json())
       } else {
         // Show an error message to the user
         console.log(response)
@@ -392,7 +392,10 @@ export const getServerSideProps: GetServerSideProps = async (
 
   // check if user is an admin
   const user = await prisma.user.findUnique({ where: { id: session?.user.id } })
+
+  if (user){
   user.createdAt = user?.createdAt.toISOString()
+  }
   // if (!(user?.role === Role.Admin || user?.role === Role.SuperAdmin)) {
   //   return {
   //     redirect: {
