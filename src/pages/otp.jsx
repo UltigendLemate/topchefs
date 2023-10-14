@@ -7,13 +7,14 @@ import { title, subtitle } from "~/components/primitives";
 
 const Otp = () => {
   const handleSubmit = () => {
-    fetch("https://2factor.in/API/V1/780d11be-63c1-11ee-addf-0200cd936042/SMS/+919711091823/12345/OTP2", {
+    fetch("https://2factor.in/API/V1/780d11be-63c1-11ee-addf-0200cd936042/SMS/+919711091823/AUTOGEN", {
       method: 'GET',
       redirect: 'follow'
     })
       .then(response => {
         if (response.ok) {
-          return response.text();
+          console.log(response.text());
+          return;
         } else {
           throw new Error('Failed to fetch OTP');
         }
@@ -28,6 +29,7 @@ const Otp = () => {
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState('1:59');
   const handleClick = () => {
+    setOtpsent(true);
 
     setIsTimerRunning(true);
     setDisabled(true);

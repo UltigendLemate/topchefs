@@ -203,7 +203,7 @@ const Profile = (props : { session : { data: { user: { id: String, email : Strin
 
 
 
-        <Accordion variant='splitted' className='w-full my-5 mx-0 px-0' disabledKeys={disabledPlans} itemClasses={
+        <Accordion variant='splitted' className='w-full my-5 mx-0 px-0'  itemClasses={
          { base : "w-full bg-yellow-600",
          content : "w-full  pt-0  -mt-3",
          title : "tracking-tight inline font-semibold text-3xl lg:text-4xl font-mont",
@@ -336,8 +336,10 @@ const Profile = (props : { session : { data: { user: { id: String, email : Strin
                 className='mt-3'
               />
 
-              <Checkbox radius="full" classNames={{ label: "text-xs" }} isSelected={data.AvailableFor}
-                onValueChange={(item) => setData({ ...data, AvailableFor: item })} className='my-2'>I am available for Private Events/Brand endorsements.</Checkbox>
+              <Checkbox radius="full" classNames={{ label: "text-xs" }} 
+              isSelected={data.AvailableFor}
+                onValueChange={(item) => setData({ ...data, AvailableFor: item })}
+                 className='my-2'>I am available for Private Events/Brand endorsements.</Checkbox>
 
 
 
