@@ -75,6 +75,7 @@ model User {
     CuisineSpecialization CuisineSpecialization[]
     PrevWork String?
     SignatureDish String[]
+    payment_request_id String?
     Speciality SpecialityTags[]
     BrandEndorsed String?
     MediaAppearance String?

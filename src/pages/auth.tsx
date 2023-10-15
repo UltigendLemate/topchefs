@@ -1,12 +1,12 @@
 /* eslint-disable @next/next/no-img-element */
 import { FcGoogle } from 'react-icons/fc'
-import { FaGithub } from 'react-icons/fa'
 import { getSession, signIn } from 'next-auth/react'
 import { AiOutlineArrowLeft } from 'react-icons/ai'
 import Link from 'next/link'
 import { GetServerSideProps } from 'next'
 
 const Auth = () => {
+  
   return (
     <div className='flex md:flex-row flex-col h-screen transition-height duration-75 ease-out'>
       <div className='relative flex flex-col w-full min-h-screen md:w-[70vw] items-center justify-center mx-auto px-6 md:px-0'>

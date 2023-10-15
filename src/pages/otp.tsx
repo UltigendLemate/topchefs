@@ -9,25 +9,32 @@ import { set } from 'zod';
 import { env } from "~/env.mjs";
 const prisma = new PrismaClient();
 import { PrismaClient } from "@prisma/client";
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { GetServerSideProps } from 'next';
 import { getSession, signIn, useSession } from "next-auth/react";
+
+import { useRouter } from "next/router";
 
 type OtpSession = {
   Details: string;
   Status: string;
 }
-const Otp = () => {
+type subsetUser = {
+  phone : string;
+  name : string;
+  email : string;
+  role : string;
+}
+const Otp = (props : subsetUser) => {
+  const router = useRouter();
   const session  = useSession();
-  // console.log(session);
-  // useEffect(() => {
-  //   if (session?.status == "unauthenticated" && typeof window !== 'undefined') {
-  //     signIn('google');
-  //   }
-  // }, [session]);
   const [otpSession, setotpSession] = useState('');
   const [OTP, setOTP] = useState('');
-  const [phone, setphone] = useState('');
+  const [loading, setloading] = useState(false);
+  const [phone, setphone] = useState(props.phone);
+  const [name, setname] = useState(props.name);
+  const [email , setemail] = useState(props.email);
   const [disabled, setDisabled] = useState(false); //send otp button disabled
   const [otpsent, setOtpsent] = useState(false); //initially false, when send otp is pressed, 
   //then it is true, when otp is verified, then it is false again
@@ -37,9 +44,9 @@ const Otp = () => {
 
 
   const handleSubmit = (phone : string) => {
-    fetch(`https://2factor.in/API/V1/${env.SMS_OTP_KEY}/SMS/${phone}/AUTOGEN`, {
-      method: 'GET',
-      redirect: 'follow'
+    fetch(`/api/sendOTP`, {
+      method: 'POST',
+      body : JSON.stringify({phone : phone}),
     })
       .then(response => {
         if (response.ok) {
@@ -51,20 +58,56 @@ const Otp = () => {
       .then(result => {
         // Parse the JSON result into a JavaScript object
         const jsonResult = JSON.parse(result) as OtpSession;
+        if (jsonResult.Status == "Success"){
+          success("OTP Sent Successfully");
+        }
+        else{
+          failure("Failed to send OTP");
+        }
   
         setotpSession(jsonResult.Details);
         // Console log the JSON object
         console.log(jsonResult);
       })
       .catch(error => {
+        failure("Failed to send OTP");
         console.error('Error:', error);
       });
   };
 
+  // const handleSubmit = (phone : string) => {
+  //   success("yes")}
+
+  const success = (text : string ) =>{
+    toast.success(text, {
+      position: "top-center",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+      });
+  }
+
+  const failure = (text : string) =>{
+    toast.error(text, {
+      position: "top-center",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+      });
+    }
+
   const verifyOtp = (otp : string) => {
-    fetch(`https://2factor.in/API/V1/${env.SMS_OTP_KEY}/SMS/VERIFY/${otpSession}/${otp}`, {
-      method: 'GET',
-      redirect: 'follow'
+    fetch('/api/verifyOTP', {
+      method: 'POST',
+      body : JSON.stringify({otp : otp, otpSession : otpSession}),
     })
       .then(response => {
         if (response.ok) {
@@ -77,21 +120,78 @@ const Otp = () => {
         // Parse the JSON result into a JavaScript object
         const jsonResult = JSON.parse(result) as OtpSession;
         setverified(jsonResult.Status);
+        if (jsonResult.Status == "Success") {
+          success("OTP Verified Successfully");
+        }
+        else{
+          failure("Failed to verify OTP");
+        }
 
         // Console log the JSON object
         console.log(jsonResult);
       })
       .catch(error => {
+        failure("Failed to verify OTP");
         console.error('Error:', error);
       });
 
   }
 
-  const handleClick = () => {
-    setOtpsent(true);
+  // const verifyOtp = (otp : string) => {
+  //   setverified("Success");
+  //   success("yes")
+  // }
+  const formSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    //prevent default
+    // const form = e.currentTarget;
+    e.preventDefault();
+    setloading(true);
+    if (!verified){
+      setphone('');
+      setOtpsent(false);
+      setemail('');
+      setname('');
+    failure("Please verify OTP first!");
+    return;
+    }
 
+    const response = await fetch('/api/profile', {
+      method: 'POST',
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body : JSON.stringify({
+        id : session?.data?.user.id,
+        phone : phone,
+        name : name,
+        email : email,
+      }),
+    });
+    if (!response.ok) {
+      setloading(false);
+      failure("some error occured");
+      return;
+    }
+
+    const responseJson = await response.json();
+    console.log(responseJson);
+    
+    router.push("/profile");
+    // setloading(false);
+     
+
+    // else {
+    //   failure("Failed to update profile");
+    //   // throw new Error('Failed to update profile');
+    // }
+
+
+
+  }
+
+  const handleClick = () => {
     setIsTimerRunning(true);
-    setDisabled(true);
+    setOtpsent(true);
     handleSubmit(phone);
   };
 
@@ -124,99 +224,128 @@ const Otp = () => {
   }, [isTimerRunning]);
 
   return (
-    <DefaultLayout>
-      <div className="grid h-full items-center ">
-        {/* <button onClick={() => handleSubmit()}>Generate OTP</button> */}
-        <form
-          action=""
-          className="-m-1  my-auto rounded-xl border border-gray-500 p-3 font-mont shadow-gray-600"
-        >
-          <h1 className={title({ size: "sm", color: "violet" })}>
-            Lets Get to Know you!
-          </h1>
-          <Input type="text" variant="underlined" label="Full Name" />
+    <>
+    {loading ? (
+      <div>loading</div>
+    ) : 
+  (    <DefaultLayout>
+    <ToastContainer
+      position="top-center"
+      autoClose={5000}
+      hideProgressBar={false}
+      newestOnTop={false}
+      closeOnClick
+      rtl={false}
+      pauseOnFocusLoss
+      draggable
+      pauseOnHover
+      theme="light"
+    />
+    
+    <div className="grid h-full items-center ">
+      {/* <button onClick={() => handleSubmit()}>Generate OTP</button> */}
+      <form
+        onSubmit={formSubmit}
+        className="-m-1  my-auto rounded-xl border border-gray-500 p-3 font-mont shadow-gray-600"
+      >
+        <h1 className={title({ size: "sm", color: "violet" })}>
+          Lets Get to Know you!
+        </h1>
+        <Input type="text" variant="underlined" value={name} onValueChange={setname} label="Full Name" />
+        <Input
+          type="email"
+          variant="underlined"
+          label="Email"
+          value = {email}
+          onValueChange = {setemail}
+          description="This email will be shared in the magazines"
+        />
+        <div className="my-4  flex items-center gap-3 text-center">
           <Input
-            type="email"
-            variant="underlined"
-            label="Email"
-            description="This email will be shared in the magazines"
+            type="text"
+            variant="bordered"
+
+            startContent={
+              <div className="pointer-events-none flex items-center">
+                <span className="text-default-400 ">+91</span>
+              </div>
+            }
+            value={phone || ""}
+            onValueChange={(item: string) => setphone(item)}
+            label="Phone Number"
+            isDisabled = {otpsent}
           />
-          <div className="my-4  flex items-center gap-3 text-center">
-            <Input
-              type="text"
-              variant="bordered"
-              className=""
-              value={phone || ""}
-              onValueChange={(item: string) => setphone(item)}
-              label="Phone Number"
-            />
+        </div>
+        {/* timer running starts */}
+        {/* timer running ends */}
+        {otpsent && (
+          <div className="my-4 flex items-center gap-3 text-center ">
+            <Input type="text" value={OTP} onValueChange={(item: string) => setOTP(item)} variant="bordered" label="Enter OTP" />
           </div>
-          {/* timer running starts */}
-          {/* timer running ends */}
-          {otpsent && (
-            <div className="my-4 flex items-center gap-3 text-center ">
-              <Input type="text" value={OTP} onValueChange={(item: string) => setOTP(item)} variant="bordered" label="Enter OTP" />
-            </div>
-          )}
-          <div className={`grid grid-cols-1 gap-3`}>
-            {otpsent ? (
-              <Button color="success" variant="flat" onClick={()=>verifyOtp(OTP)} className="">
-                Verify OTP
-              </Button>
-            ) : (
-              <Button
-                color="primary"
-                onClick={handleClick}
-                isDisabled={disabled}
-                id="send-otp-button"
-                className={otpsent ? "hidden" : "block"}
-              >
-                Send OTP
-              </Button>
-            )}
-          </div>
-          {otpsent && (
+        )}
+        <div className={`grid grid-cols-1 gap-3`}>
+
+          {otpsent ? (
+            <Button color="success" variant="flat" onClick={()=>verifyOtp(OTP)} className="">
+              Verify OTP
+            </Button>
+          ) : (
             <Button
               color="primary"
               onClick={handleClick}
-              isDisabled={disabled}
               id="send-otp-button"
               className={otpsent ? "hidden" : "block"}
             >
               Send OTP
             </Button>
           )}
-          {(isTimerRunning || otpsent) && (
-            <p className="my-2 text-center text-sm">
-              Not Recieved?{" "}
-              <label
-                htmlFor="send-otp-button"
-                className={
-                  isTimerRunning
-                    ? "text-blue-100"
-                    : "text-blue-500 hover:text-blue-500"
-                }
-              >
-                Send again
-              </label>{" "}
-              in {timeRemaining}
-            </p>
-          )}
-          {verified == "Success" && (
-            <div className="grid">
-              <Button
-                color="success"
-                variant="shadow"
-                isDisabled={!verified}
-                className="my-3"
-              >
-                Next
-              </Button>
-            </div>
-          )}
-        </form>
-      </div>
-    </DefaultLayout>
+
+        </div>
+        {otpsent && (
+          <Button
+            color="primary"
+            onClick={handleClick}
+            isDisabled={disabled}
+            id="send-otp-button"
+            className={otpsent ? "hidden" : "block"}
+          >
+            Send OTP
+          </Button>
+        )}
+        {(isTimerRunning || otpsent) && (
+          <p className="my-2 text-center text-sm">
+            Not Recieved?{" "}
+            <label
+              htmlFor="send-otp-button"
+              className={
+                isTimerRunning
+                  ? "text-blue-100"
+                  : "text-blue-500 hover:text-blue-500"
+              }
+            >
+              Send again
+            </label>{" "}
+            in {timeRemaining}
+          </p>
+        )}
+        {verified == "Success" && (
+          <div className="grid">
+            <Button
+              color="success"
+              variant="shadow"
+              // isDisabled={!verified}
+              type="submit"
+              className="my-3"
+            >
+              Next
+            </Button>
+          </div>
+        )}
+      </form>
+    </div>
+  </DefaultLayout>)}
+  </>
+
   );
 };
 
@@ -256,6 +385,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   return {
     props: {
+      phone : user.phone,
+      name : user.name,
+      email : user.email,
       role: user.role,
     },
   }

@@ -31,6 +31,8 @@ export const env = createEnv({
     CLOUDINARY_KEY : z.string(),
 CLOUDINARY_PRESET : z.string(),
 SMS_OTP_KEY : z.string(),
+INSTAMOJO_CLIENT_SECRET : z.string(),
+INSTAMOJO_CLIENT_ID : z.string(),
   },
 
   /**
@@ -58,7 +60,9 @@ SMS_OTP_KEY : z.string(),
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
     CLOUDINARY_KEY : process.env.CLOUDINARY_KEY ,
     CLOUDINARY_PRESET : process.env.CLOUDINARY_PRESET,
-    SMS_OTP_KEY : process.env.SMS_OTP_KEY
+    SMS_OTP_KEY : process.env.SMS_OTP_KEY,
+    INSTAMOJO_CLIENT_SECRET : process.env.INSTAMOJO_CLIENT_SECRET,
+INSTAMOJO_CLIENT_ID : process.env.INSTAMOJO_CLIENT_ID,
   },
   /**
    * Run build or dev with SKIP_ENV_VALIDATION to skip env validation.
