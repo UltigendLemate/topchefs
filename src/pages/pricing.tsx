@@ -94,8 +94,8 @@ const Pricing = () => {
 
       <div>pricing</div>
       <Button onClick={()=> void generateAccessToken()}>Free Plan</Button>
-      <Button onClick={() => void generatePayment(15,"Starter")}>Starter Plan</Button>
-      <Button>Premium Plan</Button>
+      <Button onClick={() => void generatePayment(10,"Starter")}>Starter Plan</Button>
+      <Button onClick={() => void generatePayment(10,"Premium")}>Premium Plan</Button>
     </DefaultLayout>
   )
 }

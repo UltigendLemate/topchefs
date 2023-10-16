@@ -22,7 +22,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           allow_repeated_payments: "false",
           send_email: "false",
           send_sms: "false",
-          redirect_url: 'localhost:3000/confirmation'
+          redirect_url: 'http://localhost:3000/confirmation'
         })
       };
       

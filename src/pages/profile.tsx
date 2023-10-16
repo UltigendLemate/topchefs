@@ -314,7 +314,9 @@ const Profile = (props: { user: any }) => {
               }
             }>
               <AccordionItem key="1" aria-label="Accordion 1" classNames={{ title: "bg-clip-text text-transparent bg-gradient-to-b from-[#00b7fa] to-[#01cfea] tracking-tight inline font-semibold text-3xl lg:text-4xl font-mont" }} subtitle="This section is only avaiable to starter plan users!" title="Enhance Your Profile">
-                <div className=' flex flex-col pb-3 rounded-xl'>
+               
+              <Input type="text" variant="underlined" value={data.Establishment}
+                onValueChange={(item: string) => setData({ ...data, Establishment: item })} description="Where are you working currently?" label="Name of your Current Establishment" />
 
 
                   <Input type="text" variant="underlined" label="Address" value={data.Address}
@@ -351,7 +353,7 @@ const Profile = (props: { user: any }) => {
 
 
 
-                </div>
+               
 
               </AccordionItem>
               <AccordionItem key="2" aria-label="Accordion 1" classNames={{ title: "bg-clip-text text-transparent bg-gradient-to-b from-[#FF705B] to-[#FFB457] tracking-tight inline font-semibold text-3xl lg:text-4xl font-mont" }} subtitle="This section is only avaiable to premium plan users!" title="Showcase Your Expertise!">

@@ -6,6 +6,7 @@ import { useRouter } from "next/router";
 import { GetServerSideProps } from 'next';
 import {env} from "~/env.mjs";
 import { getSession, useSession } from 'next-auth/react';
+import { Pay } from 'twilio/lib/twiml/VoiceResponse';
 
 type AccessToken = {
     access_token?: string,
@@ -43,7 +44,7 @@ type AccessToken = {
   }
 
 const Confirmation = (props : {PaymentResponse : PaymentResponse}) => {
-    console.log(props)
+    // console.log(props)
   return (
     <DefaultLayout>
         han bhai yo
@@ -81,16 +82,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       }
     }
 
-//updating payment_request_id in the user table
-  const profileUpdate = await fetch("http://localhost:3000/api/profile", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-         payment_request_id , 
-         id :  session?.user.id }),
-  });
 
 
 
@@ -127,10 +118,40 @@ const getPaymentResponse = await fetch(`https://api.instamojo.com/v2/payment_req
     }
   });
     const PaymentResponse = await getPaymentResponse.json() as PaymentResponse;
+    console.log(PaymentResponse);
+    let role = "Free";
+
+    if (PaymentResponse.status == "Completed") {
+      console.log ("payment successfull");
+    if(PaymentResponse.amount == "10.00" && PaymentResponse.purpose == "Starter"){
+      console.log ( "start krdia")
+      role = "Starter";
+    }
+    else if (PaymentResponse.amount == "10.00" && PaymentResponse.purpose == "Premium"){
+      console.log ( "start krdia")
+
+      role  = "Premium";
+    }
+  }
       
 
+    console.log("role is : \n",role);
+
+    //updating payment_request_id in the user table
+  const profileUpdate = await fetch("http://localhost:3000/api/profile", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+         payment_request_id , 
+         role : role,
+         id :  session?.user.id }),
+  });
 
 
+  const profilejson = await profileUpdate.json();
+  console.log("\n\nconfirmatoin json: ",profilejson);
   
 
 
