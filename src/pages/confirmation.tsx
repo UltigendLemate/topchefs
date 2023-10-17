@@ -6,8 +6,7 @@ import { useRouter } from "next/router";
 import { GetServerSideProps } from 'next';
 import {env} from "~/env.mjs";
 import { getSession, useSession } from 'next-auth/react';
-import { Pay } from 'twilio/lib/twiml/VoiceResponse';
-
+import { UserType } from './profile';
 type AccessToken = {
     access_token?: string,
     expires_in?: number,
@@ -150,7 +149,7 @@ const getPaymentResponse = await fetch(`https://api.instamojo.com/v2/payment_req
   });
 
 
-  const profilejson = await profileUpdate.json();
+  const profilejson = await profileUpdate.json() as UserType;
   console.log("\n\nconfirmatoin json: ",profilejson);
   
 
