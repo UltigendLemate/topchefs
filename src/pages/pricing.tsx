@@ -2,6 +2,11 @@ import React, { useState } from 'react'
 import DefaultLayout from '~/components/Layout/default'
 import { Button } from '@nextui-org/react'
 import { useRouter } from "next/router";
+import PricingTable from '~/components/PricingTable';
+
+
+
+
 type AccessToken = {
   access_token?: string,
   expires_in?: number,
@@ -39,7 +44,9 @@ interface InstamojoPaymentRequest {
 }
 
 
+
 const Pricing = () => {
+
   const router = useRouter();
   const [access_token, setAccess_token] = useState("")
   const [paymentRequest, setpaymentRequest] = useState<InstamojoPaymentRequest>({} as InstamojoPaymentRequest)
@@ -91,8 +98,12 @@ const Pricing = () => {
 
   return (
     <DefaultLayout>
+      
+
+
 
       <div>pricing</div>
+      <PricingTable/>
       <Button onClick={()=> void generateAccessToken()}>Free Plan</Button>
       <Button onClick={() => void generatePayment(10,"Starter")}>Starter Plan</Button>
       <Button onClick={() => void generatePayment(10,"Premium")}>Premium Plan</Button>

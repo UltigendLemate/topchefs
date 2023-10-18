@@ -110,21 +110,6 @@ const Profile = (props: { user: any }) => {
 
 
     try {
-      // console.log("trying")
-
-      // const formData = new FormData();
-      // // Append the image to form data
-      // formData.append('file', upImage!);
-      // // Bind the upload preset to the form data
-      // formData.append("upload_preset", env.CLOUDINARY_PRESET)
-      // const url = `https://api.cloudinary.com/v1_1/${env.CLOUDINARY_KEY}/image/upload`
-      // console.log(formData);
-      // const uploadResponse = await fetch(url, { method: "POST", body: formData });
-      // const uploadedImageData = await uploadResponse.json();
-      // console.log(uploadedImageData);
-      // const imageUrl = uploadedImageData.secure_url;
-      // console.log(imageUrl);
-      // data.ChefImage = imageUrl;
 
       console.log("upimage : ",upImage)
       if (upImage) {
@@ -143,27 +128,27 @@ const Profile = (props: { user: any }) => {
         setData({ ...data, ChefImage: imgJson.secure_url });
       }
 
-      // const response = await fetch("/api/profile", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify({
-      //     ...data,
-      //     City: data.City?.replace(/ /g, "_"),
-      //     id: session?.data?.user.id,
-      //   }),
-      // });
-      // // Handle the response
-      // if (response.ok) {
-      //   success("Your Details Have Been Updated!");
-      //   console.log(response.json());
-      // } else {
-      //   failure("Something went wrong!");
+      const response = await fetch("/api/profile", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...data,
+          City: data.City?.replace(/ /g, "_"),
+          id: session?.data?.user.id,
+        }),
+      });
+      // Handle the response
+      if (response.ok) {
+        success("Your Details Have Been Updated!");
+        console.log(response.json());
+      } else {
+        failure("Something went wrong!");
 
-      //   // Show an error message to the user
-      //   console.log("error : ", response);
-      // }
+        // Show an error message to the user
+        console.log("error : ", response);
+      }
     } catch (err) {
       failure("Something went wrong!");
 
@@ -179,7 +164,8 @@ const Profile = (props: { user: any }) => {
   const accordionItems = [
     {
       heading: 'Enhance Your Profile',
-      subHeading : "This section is only avaiable to starter plan users!",
+      disable : props.user.plan == "Free",
+      subHeading : "This section is only available to starter plan users!",
       content: (
         <div>
 
@@ -288,7 +274,8 @@ const Profile = (props: { user: any }) => {
     },
     {
       heading: 'Showcase Your Expertise!',
-      subHeading : "This section is only avaiable to premium plan users!",
+      subHeading : "This section is only available to premium plan users!",
+      disable : props.user.plan != "Premium",
 
       content: (
         <div className="flex flex-col rounded-xl pb-3">
@@ -415,17 +402,7 @@ const Profile = (props: { user: any }) => {
 
 
 
-  var disabledPlans: Iterable<React.Key> | undefined = [];
 
-  if (data && data.role) {
-    if (data.role == "Free") {
-      disabledPlans = ["1", "2"];
-    } else if (data.role == "Starter") {
-      disabledPlans = ["2"];
-    } else {
-      disabledPlans = [];
-    }
-  }
 
   useEffect(() => {
     console.log("data", data);
@@ -450,10 +427,11 @@ const Profile = (props: { user: any }) => {
       {loading ? (
         <div>loading</div>
       ) : (
+
         <DefaultLayout>
           {/* basic details  */}
           <form onSubmit={handleSubmit}>
-            <div className="-m-1 my-auto  mt-3 rounded-xl border border-gray-500 px-3 py-5 font-mont shadow-gray-600">
+            <div className=" my-auto  mt-3 shadow-sm  rounded-lg shadow-gray-600 px-3 py-5 font-mont">
               <h1 className={title({ size: "sm", color: "violet" })}>
                 Basic Details{" "}
                 <Link href="/otp">
@@ -488,7 +466,7 @@ const Profile = (props: { user: any }) => {
             </div>
 
             {/* additional details  */}
-            <div className="-m-1 my-auto   mt-10 rounded-xl border border-gray-500 px-3 py-5 font-mont shadow-gray-600">
+            <div className=" my-auto   mt-7 shadow-sm rounded-lg shadow-gray-600 px-3 py-5 font-mont ">
               <h1 className={title({ size: "sm", color: "blue" })}>
                 Tell us more!
               </h1>
@@ -566,6 +544,7 @@ const Profile = (props: { user: any }) => {
             </Button>
           </form>
         </DefaultLayout>
+
       )}
     </>
   );

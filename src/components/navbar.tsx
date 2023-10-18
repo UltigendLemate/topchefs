@@ -12,7 +12,8 @@ import {
 	NavbarMenuItem,
     Avatar
 } from "@nextui-org/react";
-import React, { useCallback } from "react";
+import React, { useCallback, useContext, useEffect , useState} from "react";
+import { UserType } from "~/pages/profile";
 
 import { signIn, signOut } from "next-auth/react";
 
@@ -34,7 +35,47 @@ import { useSession } from "next-auth/react";
 
 
 export const Navbar = () => {
-    const session = useSession().data;
+    // const session = useSession().data;
+
+	const { data: session, status } = useSession()
+
+	const [userData, setuserData] = useState<UserType>({} as UserType);
+
+
+	
+	const fetchProfileData = async () => {
+		const res = await fetch('api/getUser',
+		  {
+			method: 'POST',
+
+			body: JSON.stringify({ id: session?.user?.id }),
+	   }
+		)
+
+		if (res.ok) {
+			const data = await res.json() as UserType;
+			setuserData(data);
+        console.log(data);
+		}
+	}
+
+	useEffect(() => {
+		if (status === 'authenticated') {
+		  void fetchProfileData();
+		}
+	  }, [session, status]);
+
+
+
+
+	if (status === 'loading') {
+		return <div>Loading...</div>
+	  }
+
+
+	
+	  
+
 
     
 	return (
@@ -43,7 +84,7 @@ export const Navbar = () => {
 				<NavbarBrand as="li" className="gap-3 max-w-fit">
 					<NextLink className="flex justify-start items-center gap-1" href="/">
 						<Logo />
-						<p className="font-bold text-inherit">TopChefs</p>
+						<p className="font-bold text-inherit">TopChefs </p>
 					</NextLink>
 				</NavbarBrand>
 				<ul className="hidden lg:flex gap-4 justify-start ml-2">
@@ -70,21 +111,14 @@ export const Navbar = () => {
 				justify="end"
 			>
 				<NavbarItem className="hidden sm:flex gap-2">
-					{/* <Link isExternal href={siteConfig.links.twitter} aria-label="Twitter">
-						<TwitterIcon className="text-default-500" />
-					</Link>
-					<Link isExternal href={siteConfig.links.discord} aria-label="Discord">
-						<DiscordIcon className="text-default-500" />
-					</Link> */}
-					{/* <Link isExternal href={siteConfig.links.github} aria-label="Github">
-						<GithubIcon className="text-default-500" />
-					</Link> */}
-					<Link isExternal href={siteConfig.links.whatsapp} aria-label="Whatsapp">
+				
+					{/* <Link isExternal href={siteConfig.links.whatsapp} aria-label="Whatsapp">
 						<WhatsappIcon className="text-default-500" />
 					</Link>
 					<Link isExternal href={siteConfig.links.instagram} aria-label="Instagram">
 						<InstaIcon className="text-default-500" />
-					</Link>
+					</Link> */}
+					<Button color="success" variant="flat" className=" font-mont font-bold">{userData.role}</Button>
 					<ThemeSwitch />
 				</NavbarItem>
 				{/* <NavbarItem className="hidden lg:flex">{searchInput}</NavbarItem> */}
@@ -113,21 +147,36 @@ export const Navbar = () => {
 
 			<NavbarContent className="sm:hidden basis-1 pl-4" justify="end">
 				<NavbarItem className="sm:hidden ">
-					{session &&
-				<Avatar src={session.user?.image ?? '/default-image.jpg'} as={Link} href="/profile" size="sm" />
-						
-						
-							
-						}
+					{/* */}
+
+						<Button color="success" variant="flat" className="text-base font-mont font-bold">{userData.role}</Button>
 				</NavbarItem>
 				<ThemeSwitch />
-				<NavbarMenuToggle />
+				<NavbarMenuToggle icon ={<Avatar src={session?.user?.image ?? '/default-image.jpg'}  size="sm" /> }/>
 			</NavbarContent>
 
 			<NavbarMenu>
 				{/* {searchInput} */}
+				<NavbarMenuItem className="text-center">
+				{/* {session &&
+				<div className=" flex justify-center items-center gap-4">
+				<Avatar src={session.user?.image ?? '/default-image.jpg'} as={Link} href="/profile" size="sm" />
+				<Link
+								color="foreground"
+			
+								href="/profile"
+								size="lg"
+								className="text-2xl"
+							>
+								Profile
+							</Link>
+						
+				</div>
+							
+						}  */}
+				</NavbarMenuItem>
 				<div className="mx-4 mt-5 flex flex-col items-center gap-6  text-center  ">
-					{siteConfig.navItems.map((item, index) => (
+					{siteConfig.phoneNavItems.map((item, index) => (
 						<NavbarMenuItem key={`${index}`}>
 							<Link
 								color="foreground"
