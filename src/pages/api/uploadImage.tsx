@@ -19,9 +19,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           console.error("Error parsing form data:", err);
           return res.status(500).json({ message: "Error parsing form data" });
         }
-        const file = files.file as Buffer;
+        const file = files.file;
+        // const blob = await file![0]?.arrayBuffer();
         const formData = new FormData();
-        formData.append("file", file); // 'as Buffer' to cast the file to Buffer
+        formData.append("file", file[0]); //complete this
         formData.append("upload_preset", env.CLOUDINARY_PRESET);
 
         const uploadResponse = await fetch(`https://api.cloudinary.com/v1_1/${env.CLOUDINARY_KEY}/image/upload`, {
@@ -30,9 +31,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         });
 
         if (uploadResponse.ok) {
-          const uploadedImageData =await uploadResponse.json().then((data) => {
-            return res.status(200).json(data);
-          });
+          const uploadedImageData =await uploadResponse.json()
+            return res.status(200).json(uploadedImageData);
+          
         } else {
           console.error("Image upload to Cloudinary failed");
           console.log(uploadResponse);
