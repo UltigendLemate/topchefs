@@ -85,36 +85,31 @@ const Profile = (props: { user: any }) => {
   const [upImage, setUpImage] = useState<File | null>(null);
 
 
-  // const dndHandler = (img: FileList) => {
-  //   const file = Array.from(img)[0];
-  //   setEventImage(file!);
-  //   console.log(img[0]);
-  //   const image = img[0];
-  //   setUpImage(image!);
-  // };
+  const dndHandler = (img: FileList) => {
+    const file = Array.from(img)[0];
+    setEventImage(file!);
+    console.log(img[0]);
+    const image = img[0];
+    setUpImage(image!);
+  };
 
-  // const setUploadFiles = (files: FileList) => {
-  //   dndHandler(files);
-  // };
-
-  // const setUploadFiles = (e) =>{
-  //   const selectedFile = e.target.files[0];
-  //   setFile(selectedFile);
-  // }
-
-  // const handleChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-  //   e.preventDefault();
-  //   if (e.target.files) {
-  //     setUploadFiles(e.target.files);
-  //   }
-  // };
+  const setUploadFiles = (files: FileList) => {
+    dndHandler(files);
+  };
 
   const handleFileChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-    const selectedFile = e.target.files && e.target.files[0];
-    if (selectedFile) {
-      setUpImage(selectedFile);
+    e.preventDefault();
+    if (e.target.files) {
+      setUploadFiles(e.target.files);
     }
   };
+
+  // const handleFileChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+  //   const selectedFile = e.target.files && e.target.files[0];
+  //   if (selectedFile) {
+  //     setUpImage(selectedFile);
+  //   }
+  // };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
