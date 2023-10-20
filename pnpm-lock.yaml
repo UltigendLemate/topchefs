@@ -38,9 +38,9 @@ dependencies:
   clsx:
     specifier: ^2.0.0
     version: 2.0.0
-  formidable:
-    specifier: ^1.2.2
-    version: 1.2.2
+  formidable-serverless:
+    specifier: ^1.1.1
+    version: 1.1.1
   framer-motion:
     specifier: ^10.16.4
     version: 10.16.4(react-dom@18.2.0)(react@18.2.0)
@@ -3543,8 +3543,14 @@ packages:
       is-callable: 1.2.7
     dev: true
 
-  /formidable@1.2.2:
-    resolution: {integrity: sha512-V8gLm+41I/8kguQ4/o1D3RIHRmhYFG4pnNyonvua+40rqcEmT4+V71yaZ3B457xbbgCsCfjSPi65u/W6vK1U5Q==}
+  /formidable-serverless@1.1.1:
+    resolution: {integrity: sha512-IUVI2m7d46YnWRZ9RG+wvmLoX0tTrk9P6oFc53QVjM9k0XhqzeyjwDi05PLvpGNKbyLvB3gfsAc+Lk6efM3FGQ==}
+    dependencies:
+      formidable: 1.2.6
+    dev: false
+
+  /formidable@1.2.6:
+    resolution: {integrity: sha512-KcpbcpuLNOwrEjnbpMC0gS+X8ciDoZE1kkqzat4a8vrprf+s9pKNQ/QIwWfbfs4ltgmFl3MD177SNTkve3BwGQ==}
     deprecated: 'Please upgrade to latest, formidable@v2 or formidable@v3! Check these notes: https://bit.ly/2ZEqIau'
     dev: false
 
