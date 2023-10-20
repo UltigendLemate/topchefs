@@ -44,7 +44,7 @@ function CustomAccordionItem({
         <div className={`flex justify-between items-center ${disable ? " opacity-50":""}`}>
           <div>
         <h1 className={title({ size: "sm", color: "violet" })} >{heading}</h1>
-        <h2 className={subtitle()}>{subHeading}</h2>
+        <h2 className={subtitle({size : "md"})}>{subHeading}</h2>
         </div>
         {isOpen ? <AiOutlineDown fontSize={20}/> : <AiOutlineLeft fontSize={20}/> }
         </div>

@@ -14,7 +14,7 @@ import {
   Button,
   Accordion,
   AccordionItem,
-  Link,
+  Link
 } from "@nextui-org/react";
 import { getSession, useSession } from "next-auth/react";
 import {
@@ -38,7 +38,7 @@ import {
   SnapchatIcon,
   TwitterIcon,
 } from "~/components/icons";
-import {prisma} from "~/server/client";
+import { prisma } from "~/server/client";
 
 import { GetServerSideProps } from "next";
 import { ToastContainer, toast } from "react-toastify";
@@ -85,22 +85,34 @@ const Profile = (props: { user: any }) => {
   const [upImage, setUpImage] = useState<File | null>(null);
 
 
-  const dndHandler = (img: FileList) => {
-    const file = Array.from(img)[0];
-    setEventImage(file!);
-    console.log(img[0]);
-    const image = img[0];
-    setUpImage(image!);
-  };
+  // const dndHandler = (img: FileList) => {
+  //   const file = Array.from(img)[0];
+  //   setEventImage(file!);
+  //   console.log(img[0]);
+  //   const image = img[0];
+  //   setUpImage(image!);
+  // };
 
-  const setUploadFiles = (files: FileList) => {
-    dndHandler(files);
-  };
+  // const setUploadFiles = (files: FileList) => {
+  //   dndHandler(files);
+  // };
 
-  const handleChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-    e.preventDefault();
-    if (e.target.files) {
-      setUploadFiles(e.target.files);
+  // const setUploadFiles = (e) =>{
+  //   const selectedFile = e.target.files[0];
+  //   setFile(selectedFile);
+  // }
+
+  // const handleChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+  //   e.preventDefault();
+  //   if (e.target.files) {
+  //     setUploadFiles(e.target.files);
+  //   }
+  // };
+
+  const handleFileChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+    const selectedFile = e.target.files && e.target.files[0];
+    if (selectedFile) {
+      setUpImage(selectedFile);
     }
   };
 
@@ -111,16 +123,19 @@ const Profile = (props: { user: any }) => {
 
     try {
 
-      console.log("upimage : ",upImage)
+      // console.log("upimage : ",upImage)
       if (upImage) {
-      const formData = new FormData();
-      // Append the image to form data
-      formData.append('file', upImage!);
+        // console.log("uploading image")
+
+        const formData = new FormData();
+
+        formData.append('file', upImage!);
+        console.log(formData)
 
         const imguploading = await fetch("/api/uploadImage", {
           method: "POST",
           body: formData
-,
+          ,
         });
 
         const imgJson = await imguploading.json();
@@ -128,27 +143,27 @@ const Profile = (props: { user: any }) => {
         setData({ ...data, ChefImage: imgJson.secure_url });
       }
 
-      const response = await fetch("/api/profile", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...data,
-          City: data.City?.replace(/ /g, "_"),
-          id: session?.data?.user.id,
-        }),
-      });
-      // Handle the response
-      if (response.ok) {
-        success("Your Details Have Been Updated!");
-        console.log(response.json());
-      } else {
-        failure("Something went wrong!");
+      // const response = await fetch("/api/profile", {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   body: JSON.stringify({
+      //     ...data,
+      //     City: data.City?.replace(/ /g, "_"),
+      //     id: session?.data?.user.id,
+      //   }),
+      // });
+      // // Handle the response
+      // if (response.ok) {
+      //   success("Your Details Have Been Updated!");
+      //   console.log(response.json());
+      // } else {
+      //   failure("Something went wrong!");
 
-        // Show an error message to the user
-        console.log("error : ", response);
-      }
+      //   // Show an error message to the user
+      //   console.log("error : ", response);
+      // }
     } catch (err) {
       failure("Something went wrong!");
 
@@ -164,235 +179,236 @@ const Profile = (props: { user: any }) => {
   const accordionItems = [
     {
       heading: 'Enhance Your Profile',
-      disable : props.user.plan == "Free",
-      subHeading : "This section is only available to starter plan users!",
+      disable: props.user.plan == "Free",
+      subHeading: "This section is only available to starter plan users!",
       content: (
         <div>
 
-                <Input
-                  type="text"
-                  variant="underlined"
-                  label="Address"
-                  value={data.Address}
-                  onValueChange={(item: string) =>
-                    setData({ ...data, Address: item })
-                  }
-                />
+          <Input
+            type="text"
+            variant="underlined"
+            label="Address"
+            value={data.Address}
+            onValueChange={(item: string) =>
+              setData({ ...data, Address: item })
+            }
+          />
 
-                <Input
-                  type="number"
-                  variant="underlined"
-                  value={data.Experience ? String(data.Experience) : undefined}
-                  onValueChange={(item: string) =>
-                    setData({ ...data, Experience: parseInt(item) })
-                  }
-                  description="How many years of culinary experience do you have?"
-                  label="Experience (Number of years)"
-                />
+          <Input
+            type="number"
+            variant="underlined"
+            value={data.Experience ? String(data.Experience) : undefined}
+            onValueChange={(item: string) =>
+              setData({ ...data, Experience: parseInt(item) })
+            }
+            description="How many years of culinary experience do you have?"
+            label="Experience (Number of years)"
+          />
 
-                <Textarea
-                  minRows={1}
-                  label="Brief Introduction (max 50 words)"
-                  variant="underlined"
-                  className="mt-3"
-                  value={data.Intro}
-                  onValueChange={(item: string) =>
-                    setData({ ...data, Intro: item })
-                  }
-                />
+          <Textarea
+            minRows={1}
+            label="Brief Introduction (max 50 words)"
+            variant="underlined"
+            className="mt-3"
+            value={data.Intro}
+            onValueChange={(item: string) =>
+              setData({ ...data, Intro: item })
+            }
+          />
 
-                <div className="mt-3 grid grid-cols-2 gap-x-3 ">
-                  <Input
-                    type="url"
-                    variant="underlined"
-                    value={data.website}
-                    onValueChange={(item: string) =>
-                      setData({ ...data, website: item })
-                    }
-                    classNames={{ input: "text-xs" }}
-                    placeholder="Website"
-                    startContent={<GlobeIcon />}
-                  />
-                  <Input
-                    type="url"
-                    variant="underlined"
-                    value={data.instagram}
-                    onValueChange={(item: string) =>
-                      setData({ ...data, instagram: item })
-                    }
-                    classNames={{ input: "text-xs" }}
-                    placeholder="Instagram"
-                    startContent={<InstaIcon />}
-                  />
-                  <Input
-                    type="url"
-                    variant="underlined"
-                    value={data.facebook}
-                    onValueChange={(item: string) =>
-                      setData({ ...data, facebook: item })
-                    }
-                    classNames={{ input: "text-xs" }}
-                    placeholder="Facebook"
-                    startContent={<FacebookIcon />}
-                  />
-                  <Input
-                    type="url"
-                    variant="underlined"
-                    value={data.twitter}
-                    onValueChange={(item: string) =>
-                      setData({ ...data, twitter: item })
-                    }
-                    classNames={{ input: "text-xs" }}
-                    placeholder="Twitter"
-                    startContent={<TwitterIcon />}
-                  />
-                  <Input
-                    type="url"
-                    variant="underlined"
-                    value={data.snapchat}
-                    onValueChange={(item: string) =>
-                      setData({ ...data, snapchat: item })
-                    }
-                    classNames={{ input: "text-xs" }}
-                    placeholder="Snapchat"
-                    startContent={<SnapchatIcon />}
-                  />
-                  <Input
-                    type="url"
-                    variant="underlined"
-                    value={data.linkedin}
-                    onValueChange={(item: string) =>
-                      setData({ ...data, linkedin: item })
-                    }
-                    classNames={{ input: "text-xs" }}
-                    placeholder="Linkedin"
-                    startContent={<LinkedinIcon />}
-                  />
-                </div>
+          <div className="mt-3 grid grid-cols-2 gap-x-3 ">
+            <Input
+              type="url"
+              variant="underlined"
+              value={data.website}
+              onValueChange={(item: string) =>
+                setData({ ...data, website: item })
+              }
+              classNames={{ input: "text-xs" }}
+              placeholder="Website"
+              startContent={<GlobeIcon />}
+            />
+            <Input
+              type="url"
+              variant="underlined"
+              value={data.instagram}
+              onValueChange={(item: string) =>
+                setData({ ...data, instagram: item })
+              }
+              classNames={{ input: "text-xs" }}
+              placeholder="Instagram"
+              startContent={<InstaIcon />}
+            />
+            <Input
+              type="url"
+              variant="underlined"
+              value={data.facebook}
+              onValueChange={(item: string) =>
+                setData({ ...data, facebook: item })
+              }
+              classNames={{ input: "text-xs" }}
+              placeholder="Facebook"
+              startContent={<FacebookIcon />}
+            />
+            <Input
+              type="url"
+              variant="underlined"
+              value={data.twitter}
+              onValueChange={(item: string) =>
+                setData({ ...data, twitter: item })
+              }
+              classNames={{ input: "text-xs" }}
+              placeholder="Twitter"
+              startContent={<TwitterIcon />}
+            />
+            <Input
+              type="url"
+              variant="underlined"
+              value={data.snapchat}
+              onValueChange={(item: string) =>
+                setData({ ...data, snapchat: item })
+              }
+              classNames={{ input: "text-xs" }}
+              placeholder="Snapchat"
+              startContent={<SnapchatIcon />}
+            />
+            <Input
+              type="url"
+              variant="underlined"
+              value={data.linkedin}
+              onValueChange={(item: string) =>
+                setData({ ...data, linkedin: item })
+              }
+              classNames={{ input: "text-xs" }}
+              placeholder="Linkedin"
+              startContent={<LinkedinIcon />}
+            />
+          </div>
         </div>
       ),
     },
     {
       heading: 'Showcase Your Expertise!',
-      subHeading : "This section is only available to premium plan users!",
-      disable : props.user.plan != "Premium",
+      subHeading: "This section is only available to premium plan users!",
+      // disable : props.user.plan != "Premium",
+      disable: false,
 
       content: (
         <div className="flex flex-col rounded-xl pb-3">
-                  <Input
-                    type="text"
-                    variant="underlined"
-                    value={data.Awards}
-                    onValueChange={(item: string) =>
-                      setData({ ...data, Awards: item })
-                    }
-                    label="Achievements/Awards (max 50 words)"
-                  />
+          <Input
+            type="text"
+            variant="underlined"
+            value={data.Awards}
+            onValueChange={(item: string) =>
+              setData({ ...data, Awards: item })
+            }
+            label="Achievements/Awards (max 50 words)"
+          />
 
-                  <Select
-                    variant="underlined"
-                    label="Cuisine Specialization"
-                    selectionMode="multiple"
-                    className="max-w-xs"
-                    description="Select all that apply"
-                    selectedKeys={
-                      data.CuisineSpecialization
-                        ? data.CuisineSpecialization
-                        : undefined
-                    }
-                    onSelectionChange={(e) => {
-                      const des = Array.from(e);
-                      setData({
-                        ...data,
-                        CuisineSpecialization: des.map((des) => String(des)),
-                      });
-                    }}
-                  >
-                    {CuisineSpecialization.map((option) => (
-                      <SelectItem key={option} value={option}>
-                        {option}
-                      </SelectItem>
-                    ))}
-                  </Select>
-                  <Textarea
-                    minRows={1}
-                    label="Previous work place(s)"
-                    variant="underlined"
-                    className="mt-3"
-                    value={data.PrevWork}
-                    onValueChange={(item: string) =>
-                      setData({ ...data, PrevWork: item })
-                    }
-                  />
+          <Select
+            variant="underlined"
+            label="Cuisine Specialization"
+            selectionMode="multiple"
+            className="max-w-xs"
+            description="Select all that apply"
+            selectedKeys={
+              data.CuisineSpecialization
+                ? data.CuisineSpecialization
+                : undefined
+            }
+            onSelectionChange={(e) => {
+              const des = Array.from(e);
+              setData({
+                ...data,
+                CuisineSpecialization: des.map((des) => String(des)),
+              });
+            }}
+          >
+            {CuisineSpecialization.map((option) => (
+              <SelectItem key={option} value={option}>
+                {option}
+              </SelectItem>
+            ))}
+          </Select>
+          <Textarea
+            minRows={1}
+            label="Previous work place(s)"
+            variant="underlined"
+            className="mt-3"
+            value={data.PrevWork}
+            onValueChange={(item: string) =>
+              setData({ ...data, PrevWork: item })
+            }
+          />
 
-                  <div>
-                    <h1>Image Input</h1>
-                    <input type="file" onChange={handleChange} />
-                    {/* leaving for chotani */}
+          <div>
+            <h1>Image Input</h1>
+            <input type="file" onChange={handleFileChange} />
+            {/* leaving for chotani */}
 
-                    {eventImage && (
-                      <Image
-                        src={URL.createObjectURL(eventImage)}
-                        width={200}
-                        height={200}
-                        alt="Uploaded image"
-                      />
-                    )}
-                  </div>
+            {upImage && (
+              <Image
+                src={URL.createObjectURL(upImage)}
+                width={200}
+                height={200}
+                alt="Uploaded image"
+              />
+            )}
+          </div>
 
-                  <Select
-                    variant="underlined"
-                    label="Speciality Tags"
-                    selectionMode="multiple"
-                    className="max-w-xs"
-                    description="Select all that apply"
-                    selectedKeys={data.Speciality ? data.Speciality : undefined}
-                    onSelectionChange={(e) => {
-                      const des = Array.from(e);
-                      setData({
-                        ...data,
-                        Speciality: des.map((des) => String(des)),
-                      });
-                    }}
-                  >
-                    {SpecialTags.map((option) => (
-                      <SelectItem key={option} value={option}>
-                        {option}
-                      </SelectItem>
-                    ))}
-                  </Select>
+          <Select
+            variant="underlined"
+            label="Speciality Tags"
+            selectionMode="multiple"
+            className="max-w-xs"
+            description="Select all that apply"
+            selectedKeys={data.Speciality ? data.Speciality : undefined}
+            onSelectionChange={(e) => {
+              const des = Array.from(e);
+              setData({
+                ...data,
+                Speciality: des.map((des) => String(des)),
+              });
+            }}
+          >
+            {SpecialTags.map((option) => (
+              <SelectItem key={option} value={option}>
+                {option}
+              </SelectItem>
+            ))}
+          </Select>
 
-                  <Input
-                    type="text"
-                    variant="underlined"
-                    label="Which brand(s) do you endorse?"
-                  />
+          <Input
+            type="text"
+            variant="underlined"
+            label="Which brand(s) do you endorse?"
+          />
 
-                  <Textarea
-                    minRows={1}
-                    label="Have you made any media appearances?"
-                    variant="underlined"
-                    className="mt-3"
-                  />
-                  <Textarea
-                    minRows={1}
-                    label="Are you a member of any chef association?"
-                    variant="underlined"
-                    className="mt-3"
-                  />
+          <Textarea
+            minRows={1}
+            label="Have you made any media appearances?"
+            variant="underlined"
+            className="mt-3"
+          />
+          <Textarea
+            minRows={1}
+            label="Are you a member of any chef association?"
+            variant="underlined"
+            className="mt-3"
+          />
 
-                  <Checkbox
-                    radius="full"
-                    classNames={{ label: "text-xs" }}
-                    isSelected={data.AvailableFor}
-                    onValueChange={(item) =>
-                      setData({ ...data, AvailableFor: item })
-                    }
-                    className="my-2"
-                  >
-                    I am available for Private Events/Brand endorsements.
-                  </Checkbox>
-                </div>
+          <Checkbox
+            radius="full"
+            classNames={{ label: "text-xs" }}
+            isSelected={data.AvailableFor}
+            onValueChange={(item) =>
+              setData({ ...data, AvailableFor: item })
+            }
+            className="my-2"
+          >
+            I am available for Private Events/Brand endorsements.
+          </Checkbox>
+        </div>
       ),
     },
     // Add more sections with input components as content
@@ -537,7 +553,7 @@ const Profile = (props: { user: any }) => {
 
             <CustomAccordion items={accordionItems} />
 
-            
+
 
             <Button className="mt-3" type="submit" color="success">
               Submit
@@ -597,8 +613,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     props: {
       user: {
         ...user,
-        Speciality  : specialityArray,
-        CuisineSpecialization : cuisineSpecializationArray,
+        Speciality: specialityArray,
+        CuisineSpecialization: cuisineSpecializationArray,
         createdAt: userCreatedAt,
       },
     },

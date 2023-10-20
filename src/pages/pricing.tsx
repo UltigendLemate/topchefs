@@ -2,7 +2,12 @@ import React, { useState } from 'react'
 import DefaultLayout from '~/components/Layout/default'
 import { Button } from '@nextui-org/react'
 import { useRouter } from "next/router";
-import PricingTable from '~/components/PricingTable';
+import { SwiperComponent } from '~/components/SwiperComponent';
+import { getSession, useSession } from 'next-auth/react';
+import { prisma } from "~/server/client";
+import { GetServerSideProps } from "next";
+import { UserType } from './profile';
+
 
 
 
@@ -10,9 +15,9 @@ import PricingTable from '~/components/PricingTable';
 type AccessToken = {
   access_token?: string,
   expires_in?: number,
-  scope? : string,
-  token_type? : string,
-  error? : string,
+  scope?: string,
+  token_type?: string,
+  error?: string,
 }
 
 interface InstamojoPaymentRequest {
@@ -40,15 +45,15 @@ interface InstamojoPaymentRequest {
   status: string;
   user: string;
   webhook: null | string;
-  error? : string,
+  error?: string,
 }
 
 
 
-const Pricing = () => {
+const Pricing = (user : UserType) => {
 
   const router = useRouter();
-  const [access_token, setAccess_token] = useState("")
+  const {data} = useSession();
   const [paymentRequest, setpaymentRequest] = useState<InstamojoPaymentRequest>({} as InstamojoPaymentRequest)
   const generateAccessToken = async () => {
     console.log("generateAccessToken");
@@ -63,20 +68,24 @@ const Pricing = () => {
       throw new Error(jsonResult.error);
       return;
     }
-    setAccess_token(jsonResult.access_token ?? "");
+    // setAccess_token(jsonResult.access_token ?? "");
     console.log(jsonResult);
     return jsonResult;
   }
 
-  const generatePayment = async (amount : number, purpose : string) => {
-    await generateAccessToken();
-    console.log("payment initiated");
+  const generatePayment = async (amount: number, purpose: string) => {
+    if (!data?.user?.id){
+      void router.push("/auth");
+      return;
+    }
+    const token = await generateAccessToken();
+    console.log("payment initiated", token);
     const response = await fetch('/api/generatePaymentRequest', {
       method: 'POST',
-      body : JSON.stringify({
-        access_token : access_token,
-        amount : amount,
-        purpose : purpose
+      body: JSON.stringify({
+        access_token: token?.access_token,
+        amount: amount,
+        purpose: purpose
       })
     });
     if (!response.ok) {
@@ -98,17 +107,41 @@ const Pricing = () => {
 
   return (
     <DefaultLayout>
-      
 
 
-
-      <div>pricing</div>
-      <PricingTable/>
-      <Button onClick={()=> void generateAccessToken()}>Free Plan</Button>
-      <Button onClick={() => void generatePayment(10,"Starter")}>Starter Plan</Button>
-      <Button onClick={() => void generatePayment(10,"Premium")}>Premium Plan</Button>
+      <SwiperComponent genPay={generatePayment} role={user.role} />
     </DefaultLayout>
   )
 }
 
 export default Pricing
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { req } = context;
+ 
+  const session = await getSession({ req });
+  console.log("session: ", session);
+
+  // check if user is an admin
+  const user = await prisma.user.findUnique({
+    where: { id: session?.user.id },
+  });
+
+ 
+
+ 
+
+
+
+  const userCreatedAt = user?.createdAt.toISOString();
+
+
+
+  return {
+    props: {
+      ...user,
+      createdAt: userCreatedAt,
+
+    },
+  };
+};

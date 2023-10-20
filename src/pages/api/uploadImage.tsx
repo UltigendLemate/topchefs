@@ -1,47 +1,51 @@
 /*eslint-disable*/
 import { NextApiRequest, NextApiResponse } from "next";
-import {env } from "~/env.mjs";
-
-// import { File, Inc } from 'formidable'
-// import { IncomingForm } from 'formidable';
-
+import { env } from "~/env.mjs";
+import formidable from 'formidable';
+import fs from 'fs';
+export const config = {
+  api: {
+    bodyParser: false, // Disable automatic parsing
+  },
+};
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // console.log("req body : ",req.body);
-  // const { formData } = JSON.parse(req.body);
-  // let formData = {};
-  const formData = new FormData();
-  // Append the image to form data
-  // console.log ( "upimage : ", req.body);
-  // req.body = JSON.parse(req.body);
-  formData.append('file', req.body.file);
-  if (req.method == 'POST') {
+  if (req.method === "POST") {
+    try {
+      const form = new formidable.IncomingForm();
 
-      
-      try {
-      //   const formData = new FormData();
-      // // Append the image to form data
-      // formData.append('file', upImage!);
-      // Bind the upload preset to the form data
-      formData.append("upload_preset", env.CLOUDINARY_PRESET)
-      const url = `https://api.cloudinary.com/v1_1/${env.CLOUDINARY_KEY}/image/upload`
-      // console.log(formData);
-      const uploadResponse = await fetch(url, { method: "POST", body: formData });
-      const uploadedImageData = await uploadResponse.json();
-      console.log(uploadedImageData);
-      const imageUrl = uploadedImageData.secure_url;
-      console.log(imageUrl);
-      
-        // Return the response
-        return res.status(200).json(uploadedImageData);
-      } catch (err) {
-        // Handle the error
-        console.error(err);
-      }
+      form.parse(req, async (err, fields, files) => {
+        if (err) {
+          console.error("Error parsing form data:", err);
+          return res.status(500).json({ message: "Error parsing form data" });
+        }
+        const file = files.file as Buffer;
+        const formData = new FormData();
+        formData.append("file", file); // 'as Buffer' to cast the file to Buffer
+        formData.append("upload_preset", env.CLOUDINARY_PRESET);
 
+        const uploadResponse = await fetch(`https://api.cloudinary.com/v1_1/${env.CLOUDINARY_KEY}/image/upload`, {
+          method: "POST",
+          body: formData,
+        });
+
+        if (uploadResponse.ok) {
+          const uploadedImageData =await uploadResponse.json().then((data) => {
+            return res.status(200).json(data);
+          });
+        } else {
+          console.error("Image upload to Cloudinary failed");
+          console.log(uploadResponse);
+          res.status(500).json({ message: "Image upload failed" });
+        }
+        
+      });
+    } 
+    catch (err) {
+      console.error(err);
+      return res.status(500).json({ message: "Error on the server" });
+    }
   }
-  res.status(400).json({
-    message: 'Invalid request method',
-  })
-}
 
+  else {res.status(400).json({ message: "Invalid request method" }); }
+}

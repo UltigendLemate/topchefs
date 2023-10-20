@@ -9,6 +9,7 @@ import {
 	NavbarMenuToggle,
 	NavbarBrand,
 	NavbarItem,
+	
 	NavbarMenuItem,
     Avatar
 } from "@nextui-org/react";
@@ -40,6 +41,24 @@ export const Navbar = () => {
 	const { data: session, status } = useSession()
 
 	const [userData, setuserData] = useState<UserType>({} as UserType);
+	const [isMenuOpen, setIsMenuOpen] = useState(false);
+	const menuIcon = ()=>{
+		if (!isMenuOpen){
+			if (status == "authenticated"){
+				return <Avatar src={session?.user?.image ?? '/default-image.jpg'}  size="sm" />;
+			}
+			else{
+				return <div>menu</div>;
+			}
+		}
+		else{
+			return <div>cross</div>;
+		}
+	}
+
+	const toggleMenu = () => {
+	  setIsMenuOpen(!isMenuOpen);
+	};
 
 
 	
@@ -79,7 +98,7 @@ export const Navbar = () => {
 
     
 	return (
-		<NextUINavbar maxWidth="xl" position="sticky">
+		<NextUINavbar maxWidth="xl" position="sticky" isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen}>
 			<NavbarContent className="basis-1/5 sm:basis-full" justify="start">
 				<NavbarBrand as="li" className="gap-3 max-w-fit">
 					<NextLink className="flex justify-start items-center gap-1" href="/">
@@ -118,7 +137,9 @@ export const Navbar = () => {
 					<Link isExternal href={siteConfig.links.instagram} aria-label="Instagram">
 						<InstaIcon className="text-default-500" />
 					</Link> */}
-					<Button color="success" variant="flat" className=" font-mont font-bold">{userData.role}</Button>
+					{status == "authenticated" && 
+					<Button color="primary" variant="flat" as={Link} href="/pricing" className=" font-mont font-bold">{userData.role}</Button>}
+					
 					<ThemeSwitch />
 				</NavbarItem>
 				{/* <NavbarItem className="hidden lg:flex">{searchInput}</NavbarItem> */}
@@ -147,12 +168,16 @@ export const Navbar = () => {
 
 			<NavbarContent className="sm:hidden basis-1 pl-4" justify="end">
 				<NavbarItem className="sm:hidden ">
-					{/* */}
+			
 
-						<Button color="success" variant="flat" className="text-base font-mont font-bold">{userData.role}</Button>
+				{status == "authenticated" && 
+					<Button color="primary" variant="flat" as={Link} href="/pricing" className=" font-mont font-bold">{userData.role}</Button>}
 				</NavbarItem>
 				<ThemeSwitch />
-				<NavbarMenuToggle icon ={<Avatar src={session?.user?.image ?? '/default-image.jpg'}  size="sm" /> }/>
+				
+				 {status == "authenticated" ? <NavbarMenuToggle icon={<Avatar src={session?.user?.image ?? '/default-image.jpg'}  size="sm" />} /> : <NavbarMenuToggle /> }
+					
+
 			</NavbarContent>
 
 			<NavbarMenu>
