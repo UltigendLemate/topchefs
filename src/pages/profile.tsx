@@ -27,9 +27,11 @@ import {
 } from "~/server/zobj";
 import { z } from "zod";
 import { env } from "~/env.mjs";
-
+import Dragdropfile from "~/components/Dragdropfile";
+import Dragdropfiles from "~/components/Dragdropfiles";
 import { title, subtitle } from "~/components/primitives";
 import {
+  CrossIcon,
   EditIcon,
   FacebookIcon,
   GlobeIcon,
@@ -78,31 +80,44 @@ const Profile = (props: { user: any }) => {
     });
   };
 
-  const [eventImage, setEventImage] = useState<File | null>(null);
   const [data, setData] = useState<UserType>(props.user as UserType);
 
   const [loading, setloading] = useState(false);
   const [upImage, setUpImage] = useState<File | null>(null);
+  const [upImages, setUpImages] = useState<File[]>([]);
+
 
 
   const dndHandler = (img: FileList) => {
     const file = Array.from(img)[0];
-    setEventImage(file!);
-    console.log(img[0]);
+    // setEventImage(file!);
+    // console.log(img[0]);
     const image = img[0];
     setUpImage(image!);
   };
 
-  const setUploadFiles = (files: FileList) => {
-    dndHandler(files);
+  const multipleDndHandler = (imgs: FileList) => {
+    const newFiles: File[] = Array.from(imgs);
+    setUpImages([...upImages, ...newFiles]);
+    console.log("upimages", upImages)
   };
 
-  const handleFileChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-    e.preventDefault();
-    if (e.target.files) {
-      setUploadFiles(e.target.files);
-    }
+  const handleDeleteImage = (index : number) => {
+    const updatedImages = [...upImages];
+    updatedImages.splice(index, 1);
+    setUpImages(updatedImages);
   };
+
+  // const setUploadFiles = (files: FileList) => {
+  //   dndHandler(files);
+  // };
+
+  // const handleFileChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+  //   e.preventDefault();
+  //   if (e.target.files) {
+  //     setUploadFiles(e.target.files);
+  //   }
+  // };
 
   // const handleFileChange: ChangeEventHandler<HTMLInputElement> = (e) => {
   //   const selectedFile = e.target.files && e.target.files[0];
@@ -117,49 +132,66 @@ const Profile = (props: { user: any }) => {
 
 
     try {
-
-      // console.log("upimage : ",upImage)
+      //image handling
+      let imgLink = data.ChefImage;
       if (upImage) {
+        if (data.ChefImage) {
+          const imguploading = await fetch("/api/deleteImage", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              url: data.ChefImage,
+            }),
+          });
+          const imgJson = await imguploading.json();
+          console.log(imgJson);
+          // console.log(imgJson);
+        }
         // console.log("uploading image")
 
         const formData = new FormData();
-
         formData.append('file', upImage!);
-        console.log(formData)
+        console.log(upImage);
 
         const imguploading = await fetch("/api/uploadImage", {
           method: "POST",
           body: formData
           ,
         });
-
         const imgJson = await imguploading.json();
         console.log(imgJson);
+        imgLink = imgJson.secure_url;
         setData({ ...data, ChefImage: imgJson.secure_url });
       }
 
-      // const response = await fetch("/api/profile", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify({
-      //     ...data,
-      //     City: data.City?.replace(/ /g, "_"),
-      //     id: session?.data?.user.id,
-      //   }),
-      // });
-      // // Handle the response
-      // if (response.ok) {
-      //   success("Your Details Have Been Updated!");
-      //   console.log(response.json());
-      // } else {
-      //   failure("Something went wrong!");
+      const response = await fetch("/api/profile", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...data,
+          ChefImage: imgLink,
+          City: data.City?.replace(/ /g, "_"),
+          id: session?.data?.user.id,
+        }),
+      });
+      // Handle the response
+      if (response.ok) {
+        success("Your Details Have Been Updated!");
+        console.log(response.json());
+      }
+      else {
+        failure("Something went wrong!");
 
-      //   // Show an error message to the user
-      //   console.log("error : ", response);
-      // }
-    } catch (err) {
+        // Show an error message to the user
+        console.log("error : ", response);
+      }
+    }
+
+    catch (err) {
       failure("Something went wrong!");
 
       console.log("error : ", err);
@@ -325,6 +357,29 @@ const Profile = (props: { user: any }) => {
               </SelectItem>
             ))}
           </Select>
+
+          <div className="flex flex-col items-center">
+            <h3 className={subtitle()}>Profile picture, preferably in Chef Jacket <br /> Max Size : 2MB</h3>
+            <Dragdropfile
+              setUploadFiles={(file) => {
+                dndHandler(file)
+              }}
+              multiple={false}
+            />
+            {/* leaving for chotani */}
+
+            {(upImage || data.ChefImage) && (
+              <Image
+                src={upImage ? URL.createObjectURL(upImage) : data.ChefImage}
+                width={200}
+                height={200}
+                className="mx-auto"
+                alt="Uploaded image"
+              />
+            )}
+          </div>
+
+
           <Textarea
             minRows={1}
             label="Previous work place(s)"
@@ -336,20 +391,7 @@ const Profile = (props: { user: any }) => {
             }
           />
 
-          <div>
-            <h1>Image Input</h1>
-            <input type="file" onChange={handleFileChange} />
-            {/* leaving for chotani */}
 
-            {upImage && (
-              <Image
-                src={URL.createObjectURL(upImage)}
-                width={200}
-                height={200}
-                alt="Uploaded image"
-              />
-            )}
-          </div>
 
           <Select
             variant="underlined"
@@ -378,6 +420,53 @@ const Profile = (props: { user: any }) => {
             variant="underlined"
             label="Which brand(s) do you endorse?"
           />
+
+          <div className="flex flex-col items-center">
+            <h3 className={subtitle()}>Your signature dishes/recipes <br /> Maximum 6 Images</h3>
+
+
+
+            <div className="grid grid-cols-3 gap-3 h-auto">
+
+              
+              {upImages&& (
+
+                upImages?.map((image,index) => (
+                  <div key={index} className="flex  relative items-center  justify-center w-full h-auto  ">
+                    <CrossIcon className="absolute z-[20] top-1 right-0" size={25} onClick={() => handleDeleteImage(index)} />
+                    
+
+                    <Image
+                      src={URL.createObjectURL(image)}
+                      width={500}
+                      height={500}
+                      radius = "sm"
+                      
+                      // className="w-full rounded-none h-full"
+                      alt="Uploaded image"
+                      classNames={{ 
+                        img: "object-cover w-full h-full bg",
+                       wrapper: " h-full",
+                       zoomedWrapper : "h-full",
+                       }}
+                      isZoomed={true}
+                    />
+                  </div>
+                ))
+
+              )}
+
+              <Dragdropfiles
+                setUploadFiles={(file) => {
+                  multipleDndHandler(file)
+                }}
+                multiple={true}
+              />
+            </div>
+
+
+          </div>
+
 
           <Textarea
             minRows={1}
@@ -417,6 +506,8 @@ const Profile = (props: { user: any }) => {
 
   useEffect(() => {
     console.log("data", data);
+    // const publicIdMatch = data.ChefImage?.match(/\/v\d+\/[^/]+\/([^/.]+)/);
+    // console.log("publlic match" , publicIdMatch[1])
     setData({ ...data, City: data.City?.replace(/_/g, " ") });
   }, []);
 

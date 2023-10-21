@@ -9,8 +9,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   // console.log("req bodyyy : ",req.body);
   if (req.method == 'POST') {
     const { id } = req.body;
+    // console.log(req.body);
     let speciality = [];
     let cuisine = [];
+    console.log("req here\n\n\n",req.body)
 
     const user = await prisma.user.findUnique({
       where: {
@@ -36,7 +38,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         speciality.push({ id: specialityTagEntry.id });
       }
 
-      console.log("user data after spceiality: \n\n", speciality)
+      // console.log("user data after spceiality: \n\n", speciality)
 
     }
 
@@ -60,7 +62,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       }
 
-      console.log("user data after cusine: \n\n", cuisine)
+      // console.log("user data after cusine: \n\n", cuisine)
 
     }
 

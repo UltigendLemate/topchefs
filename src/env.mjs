@@ -33,6 +33,9 @@ CLOUDINARY_PRESET : z.string(),
 SMS_OTP_KEY : z.string(),
 INSTAMOJO_CLIENT_SECRET : z.string(),
 INSTAMOJO_CLIENT_ID : z.string(),
+CLOUDINARY_API_KEY : z.string(),
+CLOUDINARY_API_SECRET_KEY : z.string(),
+CLOUDINARY_API_CLOUD_NAME : z.string(),
   },
 
   /**
@@ -63,6 +66,10 @@ INSTAMOJO_CLIENT_ID : z.string(),
     SMS_OTP_KEY : process.env.SMS_OTP_KEY,
     INSTAMOJO_CLIENT_SECRET : process.env.INSTAMOJO_CLIENT_SECRET,
 INSTAMOJO_CLIENT_ID : process.env.INSTAMOJO_CLIENT_ID,
+
+CLOUDINARY_API_KEY : process.env.CLOUDINARY_API_KEY,
+CLOUDINARY_API_SECRET_KEY : process.env.CLOUDINARY_API_SECRET_KEY,
+CLOUDINARY_API_CLOUD_NAME : process.env.CLOUDINARY_API_CLOUD_NAME,
   },
   /**
    * Run build or dev with SKIP_ENV_VALIDATION to skip env validation.
