@@ -26,7 +26,7 @@ const Auth = () => {
           <button
             className='border-white border-2 dark:bg-white bg-black py-3 rounded-md px-auto justify-center gap-3 flex flex-row items-center font-bold dark:text-gray-700 text-white'
             onClick={() => {
-              void signIn('google', { callbackUrl: '/otp' })
+              void signIn('google', { callbackUrl: '/pricing' })
             }}
           >
             <FcGoogle fontSize={25} />

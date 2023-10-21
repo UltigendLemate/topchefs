@@ -80,18 +80,15 @@ const Profile = (props: { user: any }) => {
     });
   };
 
-  const [data, setData] = useState<UserType>(props.user as UserType);
-
+  const [data, setData] = useState<UserType>(props.user as UserType); // for storing form data
+  const [deleteImages, setDeleteImages] = useState<String[]>([]); // for deleting crossed signature dishes
   const [loading, setloading] = useState(false);
-  const [upImage, setUpImage] = useState<File | null>(null);
-  const [upImages, setUpImages] = useState<File[]>([]);
+  const [upImage, setUpImage] = useState<File | null>(null); // for profile image
+  const [upImages, setUpImages] = useState<File[]>([]); // for signature dishes
 
 
 
   const dndHandler = (img: FileList) => {
-    const file = Array.from(img)[0];
-    // setEventImage(file!);
-    // console.log(img[0]);
     const image = img[0];
     setUpImage(image!);
   };
@@ -102,35 +99,25 @@ const Profile = (props: { user: any }) => {
     console.log("upimages", upImages)
   };
 
-  const handleDeleteImage = (index : number) => {
+  const handleDeleteImage = (index: number) => {
     const updatedImages = [...upImages];
     updatedImages.splice(index, 1);
     setUpImages(updatedImages);
   };
 
-  // const setUploadFiles = (files: FileList) => {
-  //   dndHandler(files);
-  // };
 
-  // const handleFileChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-  //   e.preventDefault();
-  //   if (e.target.files) {
-  //     setUploadFiles(e.target.files);
-  //   }
-  // };
+  const handleDataDeleteImage = (deleteImage: string) => {
+    const filteredItems = data.SignatureDish?.filter((item) => item != deleteImage);
+    setData({ ...data, SignatureDish: filteredItems });
+    setDeleteImages([...deleteImages, deleteImage]);
+  };
 
-  // const handleFileChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-  //   const selectedFile = e.target.files && e.target.files[0];
-  //   if (selectedFile) {
-  //     setUpImage(selectedFile);
-  //   }
-  // };
+
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setloading(true);
-
-
+    let newSignatureDish = Array.from(data.SignatureDish ?? []);
     try {
       //image handling
       let imgLink = data.ChefImage;
@@ -153,18 +140,68 @@ const Profile = (props: { user: any }) => {
 
         const formData = new FormData();
         formData.append('file', upImage!);
-        console.log(upImage);
+
 
         const imguploading = await fetch("/api/uploadImage", {
           method: "POST",
           body: formData
-          ,
         });
         const imgJson = await imguploading.json();
         console.log(imgJson);
         imgLink = imgJson.secure_url;
-        setData({ ...data, ChefImage: imgJson.secure_url });
+        // setData({ ...data, ChefImage: imgJson.secure_url });
       }
+
+
+
+      if (deleteImages.length > 0) {
+        const imguploading = await fetch("/api/deleteImages", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            publicIds: deleteImages
+          }),
+        });
+        const imgJson = await imguploading.json();
+        console.log(imgJson);
+
+      }
+
+      if (upImages.length > 0) {
+
+        const formData = new FormData();
+        console.log("thisis it", upImages)
+        for (let index = 0; index < upImages.length; index++) {
+          formData.append('image', upImages[index]!);
+        }
+        console.log("formdata:\n\n", formData);
+        // let imguploading;
+
+
+        const imguploading = await fetch("/api/uploadSignatureDishes", {
+          method: "POST",
+          body: formData
+        });
+
+        const imgJson = await imguploading.json();
+        console.log("this is output", imgJson);
+        // imgLink = imgJson.secure_url;
+
+        for (let index = 0; index < imgJson.length; index++) {
+          const element = imgJson[index];
+          newSignatureDish.push(element.secure_url);
+        }
+        setData({ ...data, SignatureDish: newSignatureDish });
+
+      }
+
+
+
+
+
+
 
       const response = await fetch("/api/profile", {
         method: "POST",
@@ -173,6 +210,7 @@ const Profile = (props: { user: any }) => {
         },
         body: JSON.stringify({
           ...data,
+          SignatureDish: newSignatureDish,
           ChefImage: imgLink,
           City: data.City?.replace(/ /g, "_"),
           id: session?.data?.user.id,
@@ -181,7 +219,9 @@ const Profile = (props: { user: any }) => {
       // Handle the response
       if (response.ok) {
         success("Your Details Have Been Updated!");
-        console.log(response.json());
+        const updatedData = await response.json();
+        // console.log("updated Data\n\n\n:", updatedData);
+        setData({...data, ChefImage: updatedData.ChefImage, SignatureDish: updatedData.SignatureDish});
       }
       else {
         failure("Something went wrong!");
@@ -189,8 +229,8 @@ const Profile = (props: { user: any }) => {
         // Show an error message to the user
         console.log("error : ", response);
       }
-    }
 
+    }
     catch (err) {
       failure("Something went wrong!");
 
@@ -199,6 +239,9 @@ const Profile = (props: { user: any }) => {
       // Show an error message to the user
     }
 
+    setUpImages([]);
+    setUpImage(null);
+    console.log(upImage)
     setloading(false);
   };
 
@@ -366,7 +409,8 @@ const Profile = (props: { user: any }) => {
               }}
               multiple={false}
             />
-            {/* leaving for chotani */}
+
+
 
             {(upImage || data.ChefImage) && (
               <Image
@@ -419,6 +463,10 @@ const Profile = (props: { user: any }) => {
             type="text"
             variant="underlined"
             label="Which brand(s) do you endorse?"
+            value={data.BrandEndorsed}
+            onValueChange={(item: string) =>
+              setData({ ...data, BrandEndorsed: item })
+            }
           />
 
           <div className="flex flex-col items-center">
@@ -428,27 +476,53 @@ const Profile = (props: { user: any }) => {
 
             <div className="grid grid-cols-3 gap-3 h-auto">
 
-              
-              {upImages&& (
+              {
+                data.SignatureDish && (
+                  data.SignatureDish.map((image, index) => (
+                    <div key={index} className="flex  relative items-center  justify-center w-full h-auto  ">
+                      <CrossIcon className="absolute z-[20] top-1 right-0 bg-blue-500" size={25}
+                        onClick={() => handleDataDeleteImage(image)} />
+                      <Image
+                        src={image}
+                        width={500}
+                        height={500}
+                        radius="sm"
 
-                upImages?.map((image,index) => (
+                        // className="w-full rounded-none h-full"
+                        alt="Uploaded image"
+                        classNames={{
+                          img: "object-cover w-full h-full bg",
+                          wrapper: " h-full",
+                          zoomedWrapper: "h-full",
+                        }}
+                        isZoomed={true}
+                      />
+                    </div>
+                  ))
+                )
+              }
+
+
+              {upImages && (
+
+                upImages?.map((image, index) => (
                   <div key={index} className="flex  relative items-center  justify-center w-full h-auto  ">
                     <CrossIcon className="absolute z-[20] top-1 right-0" size={25} onClick={() => handleDeleteImage(index)} />
-                    
+
 
                     <Image
                       src={URL.createObjectURL(image)}
                       width={500}
                       height={500}
-                      radius = "sm"
-                      
+                      radius="sm"
+
                       // className="w-full rounded-none h-full"
                       alt="Uploaded image"
-                      classNames={{ 
+                      classNames={{
                         img: "object-cover w-full h-full bg",
-                       wrapper: " h-full",
-                       zoomedWrapper : "h-full",
-                       }}
+                        wrapper: " h-full",
+                        zoomedWrapper: "h-full",
+                      }}
                       isZoomed={true}
                     />
                   </div>
@@ -473,20 +547,31 @@ const Profile = (props: { user: any }) => {
             label="Have you made any media appearances?"
             variant="underlined"
             className="mt-3"
+            value={data.MediaAppearance}
+            onValueChange={(item: string) =>
+              setData({ ...data, MediaAppearance: item })
+            }
           />
           <Textarea
             minRows={1}
             label="Are you a member of any chef association?"
             variant="underlined"
             className="mt-3"
+            value={data.MemberForChef}
+            onValueChange={(item: string) =>
+              setData({ ...data, MemberForChef: item })
+            }
           />
 
           <Checkbox
             radius="full"
             classNames={{ label: "text-xs" }}
-            isSelected={data.AvailableFor}
+            isSelected={data.AvailableFor ? true : false}
             onValueChange={(item) =>
+              {
+                console.log(item);
               setData({ ...data, AvailableFor: item })
+              }
             }
             className="my-2"
           >
@@ -495,7 +580,6 @@ const Profile = (props: { user: any }) => {
         </div>
       ),
     },
-    // Add more sections with input components as content
   ];
 
 
@@ -506,8 +590,7 @@ const Profile = (props: { user: any }) => {
 
   useEffect(() => {
     console.log("data", data);
-    // const publicIdMatch = data.ChefImage?.match(/\/v\d+\/[^/]+\/([^/.]+)/);
-    // console.log("publlic match" , publicIdMatch[1])
+    setUpImage(null);
     setData({ ...data, City: data.City?.replace(/_/g, " ") });
   }, []);
 

@@ -150,7 +150,7 @@ export const Navbar = () => {
 							className="text-sm font-normal text-default-900 bg-primary-100"
 
 							onClick={() => {
-                                void signIn('google')
+                                void signIn('google', { callbackUrl: '/pricing' })
                             }}
 
 							variant="flat"
@@ -224,7 +224,7 @@ export const Navbar = () => {
 							color="primary"
 							variant="flat"
 							
-							onClick={() => void signIn("google")}
+							onClick={() => void signIn("google",{ callbackUrl: '/pricing' })}
 							size="lg"
 							className="text-2xl"
 						>

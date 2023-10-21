@@ -11,12 +11,13 @@ export const config = {
   },
 };
 
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed.' });
   }
     const form = new formidable.IncomingForm();
-    form.parse(req, (err, fields, files) => {
+    form.parse(req, (err: any, fields: any, files: { file: { path: any; }; } ) => {
       if (err) {
         return res.status(500).json({ error: 'Error parsing form data.' });
       }

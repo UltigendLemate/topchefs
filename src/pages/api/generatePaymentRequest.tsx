@@ -17,8 +17,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           Authorization: `Bearer ${access_token}`,
         },
         body: new URLSearchParams({
-            amount : amount,
-            purpose : purpose,
+          amount : amount,
+          purpose : purpose,
           allow_repeated_payments: "false",
           send_email: "false",
           send_sms: "false",

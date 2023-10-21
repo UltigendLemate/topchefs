@@ -2,24 +2,17 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "~/server/client";
 
-
-
-
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // console.log("req bodyyy : ",req.body);
   if (req.method == 'POST') {
     const { id } = req.body;
-    // console.log(req.body);
     let speciality = [];
     let cuisine = [];
-    console.log("req here\n\n\n",req.body)
 
     const user = await prisma.user.findUnique({
       where: {
         id,
       },
     });
-    // console.log("user data: \n\n",user)
 
     if (req.body.Speciality) {
       for (const specialityTag of req.body.Speciality) {
@@ -38,7 +31,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         speciality.push({ id: specialityTagEntry.id });
       }
 
-      // console.log("user data after spceiality: \n\n", speciality)
 
     }
 
@@ -62,7 +54,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       }
 
-      // console.log("user data after cusine: \n\n", cuisine)
 
     }
 
