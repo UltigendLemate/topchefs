@@ -24,6 +24,7 @@ import {
   educationOptions,
   CuisineSpecialization,
   SpecialTags,
+  validationSchema
 } from "~/server/zobj";
 import { z } from "zod";
 import { env } from "~/env.mjs";
@@ -45,7 +46,8 @@ import { prisma } from "~/server/client";
 import { GetServerSideProps } from "next";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
+import { toFormikValidationSchema } from 'zod-formik-adapter';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
 cities.sort();
 
 export type UserType = z.infer<typeof UserSchema>;
@@ -114,10 +116,37 @@ const Profile = (props: { user: any }) => {
 
 
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
+    // e.preventDefault();
     setloading(true);
     let newSignatureDish = Array.from(data.SignatureDish ?? []);
+
+
+    if (upImages.length + newSignatureDish.length > 6) {
+      failure("Maximum 6 images allowed!");
+      setloading(false);
+      return;
+    }
+
+    if (upImages.length > 0) {
+      for (let index = 0; index < upImages.length; index++) {
+        const element = upImages[index];
+        if (!element || element.size > 2 * 1024 * 1024) {
+          failure("Your signature dish image should not exceed 2MB!");
+          setloading(false);
+          return;
+        }
+      }
+    }
+
+    if (upImage && upImage.size > 2 * 1024 * 1024) {
+      failure("Your profile pic should not exceed 2MB!");
+      setloading(false);
+      return;
+    }
+
+
+
     try {
       //image handling
       let imgLink = data.ChefImage;
@@ -221,7 +250,7 @@ const Profile = (props: { user: any }) => {
         success("Your Details Have Been Updated!");
         const updatedData = await response.json();
         // console.log("updated Data\n\n\n:", updatedData);
-        setData({...data, ChefImage: updatedData.ChefImage, SignatureDish: updatedData.SignatureDish});
+        setData({ ...data, ChefImage: updatedData.ChefImage, SignatureDish: updatedData.SignatureDish });
       }
       else {
         failure("Something went wrong!");
@@ -275,16 +304,22 @@ const Profile = (props: { user: any }) => {
             label="Experience (Number of years)"
           />
 
-          <Textarea
-            minRows={1}
-            label="Brief Introduction (max 50 words)"
-            variant="underlined"
-            className="mt-3"
+
+          <Field
+            name="Intro"
+            type="text"
+            as={Textarea}
             value={data.Intro}
             onValueChange={(item: string) =>
               setData({ ...data, Intro: item })
             }
+            minRows={1}
+            label="Brief Introduction (max 50 words)"
+            variant="underlined"
+            className="mt-3"
           />
+
+          <ErrorMessage name="Intro" component="div" className="error" />
 
           <div className="mt-3 grid grid-cols-2 gap-x-3 ">
             <Input
@@ -365,15 +400,21 @@ const Profile = (props: { user: any }) => {
 
       content: (
         <div className="flex flex-col rounded-xl pb-3">
-          <Input
+
+          <Field
+            name="Awards"
             type="text"
+            as={Input}
             variant="underlined"
             value={data.Awards}
             onValueChange={(item: string) =>
               setData({ ...data, Awards: item })
             }
             label="Achievements/Awards (max 50 words)"
+            className="mt-3"
           />
+
+          <ErrorMessage name="Awards" component="div" className="error" />
 
           <Select
             variant="underlined"
@@ -474,7 +515,7 @@ const Profile = (props: { user: any }) => {
 
 
 
-            <div className="grid grid-cols-3 gap-3 h-auto">
+            <div className="grid grid-cols-3 md:grid-cols-7 gap-3 h-auto">
 
               {
                 data.SignatureDish && (
@@ -542,8 +583,12 @@ const Profile = (props: { user: any }) => {
           </div>
 
 
-          <Textarea
-            minRows={1}
+       
+
+          <Field
+            name="MediaAppearance"
+            type="text"
+            as={Input}
             label="Have you made any media appearances?"
             variant="underlined"
             className="mt-3"
@@ -552,9 +597,15 @@ const Profile = (props: { user: any }) => {
               setData({ ...data, MediaAppearance: item })
             }
           />
-          <Textarea
-            minRows={1}
-            label="Are you a member of any chef association?"
+
+          <ErrorMessage name="MediaAppearance" component="div" className="error" />
+
+
+          <Field
+            name="MemberForChef"
+            type="text"
+            as={Input}
+            label="Have you made any media appearances?"
             variant="underlined"
             className="mt-3"
             value={data.MemberForChef}
@@ -563,15 +614,26 @@ const Profile = (props: { user: any }) => {
             }
           />
 
+          <ErrorMessage name="MemberForChef" component="div" className="error" />
+          {/* <Input
+            // minRows={1}
+            label="Are you a member of any chef association?"
+            variant="underlined"
+            className="mt-3"
+            value={data.MemberForChef}
+            onValueChange={(item: string) =>
+              setData({ ...data, MemberForChef: item })
+            }
+          /> */}
+
           <Checkbox
             radius="full"
             classNames={{ label: "text-xs" }}
             isSelected={data.AvailableFor ? true : false}
-            onValueChange={(item) =>
-              {
-                console.log(item);
+            onValueChange={(item) => {
+              console.log(item);
               setData({ ...data, AvailableFor: item })
-              }
+            }
             }
             className="my-2"
           >
@@ -615,119 +677,144 @@ const Profile = (props: { user: any }) => {
 
         <DefaultLayout>
           {/* basic details  */}
-          <form onSubmit={handleSubmit}>
-            <div className=" my-auto  mt-3 shadow-sm  rounded-lg shadow-gray-600 px-3 py-5 font-mont">
-              <h1 className={title({ size: "sm", color: "violet" })}>
-                Basic Details{" "}
-                <Link href="/otp">
-                  <EditIcon className="inline h-7 w-7 text-default-500" />
-                </Link>
-              </h1>
 
-              <Input
-                type="text"
-                variant="underlined"
-                label="Full Name"
-                isDisabled
-                value={data.name}
-              />
+          <Formik
+            initialValues={data}
+            onSubmit={handleSubmit}
+            validationSchema={validationSchema}
+          >
+            <Form >
+              <div className=" my-auto  mt-3 shadow-sm  rounded-lg shadow-gray-600 px-3 py-5 font-mont">
+                <h1 className={title({ size: "sm", color: "violet" })}>
+                  Basic Details{" "}
+                  <Link href="/otp">
+                    <EditIcon className="inline h-7 w-7 text-default-500" />
+                  </Link>
+                </h1>
 
-              <Input
-                type="email"
-                variant="underlined"
-                label="Email"
-                isDisabled
-                value={data.email}
-                description="This email will be shared in the magazines"
-              />
 
-              <Input
-                type="text"
-                variant="underlined"
-                isDisabled
-                value={data.phone}
-                label="Phone Number"
-              />
-            </div>
+                <Input
+                  type="text"
+                  variant="underlined"
+                  label="Full Name"
+                  isDisabled
+                  value={data.name}
+                />
 
-            {/* additional details  */}
-            <div className=" my-auto   mt-7 shadow-sm rounded-lg shadow-gray-600 px-3 py-5 font-mont ">
-              <h1 className={title({ size: "sm", color: "blue" })}>
-                Tell us more!
-              </h1>
 
-              <Select
-                variant="underlined"
-                label="Select your current designation"
-                className="max-w-xs"
-                selectedKeys={data.currentDes ? [data.currentDes] : undefined}
-                onSelectionChange={(e) => {
-                  const des = Array.from(e)[0];
-                  setData({ ...data, currentDes: String(des) });
-                }}
-              >
-                {currentDesignation.map((designation) => (
-                  <SelectItem key={designation} value={designation}>
-                    {designation}
-                  </SelectItem>
-                ))}
-              </Select>
+                <Input
+                  type="email"
+                  variant="underlined"
+                  label="Email"
+                  isDisabled
+                  value={data.email}
+                  description="This email will be shared in the magazines"
+                />
 
-              <Input
+                <Input
+                  type="text"
+                  variant="underlined"
+                  isDisabled
+                  value={data.phone}
+                  label="Phone Number"
+                />
+              </div>
+
+              {/* additional details  */}
+              <div className=" my-auto   mt-7 shadow-sm rounded-lg shadow-gray-600 px-3 py-5 font-mont ">
+                <h1 className={title({ size: "sm", color: "blue" })}>
+                  Tell us more!
+                </h1>
+
+                <Select
+                  variant="underlined"
+                  label="Select your current designation"
+                  className="max-w-xs block"
+                  selectedKeys={data.currentDes ? [data.currentDes] : undefined}
+                  onSelectionChange={(e) => {
+                    const des = Array.from(e)[0];
+                    setData({ ...data, currentDes: String(des) });
+                  }}
+                >
+                  {currentDesignation.map((designation) => (
+                    <SelectItem key={designation} value={designation}>
+                      {designation}
+                    </SelectItem>
+                  ))}
+                </Select>
+
+                {/* <Input
                 type="text"
                 variant="underlined"
                 value={data.Establishment}
                 onValueChange={(item: string) =>
                   setData({ ...data, Establishment: item })
                 }
+                name="Establishment"
                 description="Where are you working currently?"
                 label="Name of your Current Establishment"
-              />
+              /> */}
 
-              <Select
-                variant="underlined"
-                label="City"
-                className="max-w-xs"
-                selectedKeys={data.City ? [data.City] : undefined}
-                onSelectionChange={(e) => {
-                  const cit = Array.from(e)[0];
-                  setData({ ...data, City: String(cit) });
-                }}
-              >
-                {cities.map((city) => (
-                  <SelectItem key={city} value={city}>
-                    {city}
-                  </SelectItem>
-                ))}
-              </Select>
+                <Field
+                  name="Establishment"
+                  type="text"
+                  as={Input}
+                  value={data.Establishment}
+                  onValueChange={(item: string) =>
+                    setData({ ...data, Establishment: item })
+                  }
+                  variant="underlined"
+                  label="Name of your Current Establishment"
+                  description="Where are you working currently?"
+                />
 
-              <Select
-                variant="underlined"
-                label="Highest level of education completed"
-                className="max-w-xs"
-                selectedKeys={data.Education ? [data.Education] : undefined}
-                onSelectionChange={(e) => {
-                  const edu = Array.from(e)[0];
-                  setData({ ...data, Education: String(edu) });
-                }}
-              >
-                {educationOptions.map((option) => (
-                  <SelectItem key={option} value={option}>
-                    {option}
-                  </SelectItem>
-                ))}
-              </Select>
-            </div>
+                <ErrorMessage name="Establishment" component="div" className="error" />
+
+                <Select
+                  variant="underlined"
+                  label="City"
+                  className="max-w-xs"
+                  selectedKeys={data.City ? [data.City] : undefined}
+                  onSelectionChange={(e) => {
+                    const cit = Array.from(e)[0];
+                    setData({ ...data, City: String(cit) });
+                  }}
+                >
+                  {cities.map((city) => (
+                    <SelectItem key={city} value={city}>
+                      {city}
+                    </SelectItem>
+                  ))}
+                </Select>
+
+                <Select
+                  variant="underlined"
+                  label="Highest level of education completed"
+                  className="max-w-xs"
+                  selectedKeys={data.Education ? [data.Education] : undefined}
+                  onSelectionChange={(e) => {
+                    const edu = Array.from(e)[0];
+                    setData({ ...data, Education: String(edu) });
+                  }}
+                >
+                  {educationOptions.map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </Select>
+              </div>
 
 
-            <CustomAccordion items={accordionItems} />
+              <CustomAccordion items={accordionItems} />
 
 
 
-            <Button className="mt-3" type="submit" color="success">
-              Submit
-            </Button>
-          </form>
+              <Button className="mt-3" type="submit" color="success">
+                Submit
+              </Button>
+            </Form>
+          </Formik>
         </DefaultLayout>
 
       )}

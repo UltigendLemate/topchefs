@@ -1,6 +1,6 @@
 import React, { ChangeEventHandler, useState } from 'react'
 import { BsUpload } from 'react-icons/bs'
-
+import { Field } from 'formik'
 const Dragdropfiles = ({
 	setUploadFiles, multiple
 }: {
@@ -56,6 +56,7 @@ const Dragdropfiles = ({
 					onChange={handleChange}
 					className='hidden'
 				/>
+
 				<label
 					className={`flex flex-col h-full items-center justify-center border-none p-4 ${isHovering ? 'bg-[#ffffff]' : 'bg-blue-700'
 						}`}
