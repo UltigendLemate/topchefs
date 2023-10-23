@@ -1,12 +1,18 @@
 
 import React from 'react'
 import DefaultLayout from '~/components/Layout/default'
-import { Button } from '@nextui-org/react'
+import { Button, Image } from '@nextui-org/react'
+import Link from 'next/link';
 import { useRouter } from "next/router";
 import { GetServerSideProps } from 'next';
 import { env } from "~/env.mjs";
 import { getSession, useSession } from 'next-auth/react';
 import { UserType } from './profile';
+import { title, subtitle } from '~/components/primitives';
+import { FcRight } from 'react-icons/fc';
+import { AiOutlineDoubleRight } from 'react-icons/ai';
+
+
 type AccessToken = {
   access_token?: string,
   expires_in?: number,
@@ -42,14 +48,35 @@ type PaymentResponse = {
   resource_uri: string;
 }
 
-const Confirmation = (props: { PaymentResponse: PaymentResponse }) => {
+const Confirmation = (props: { PaymentResponse: PaymentResponse, role: string }) => {
   // console.log(props)
   return (
-    <DefaultLayout>
-      han bhai yo
+    <div className='flex flex-col md:flex-row items-center '>
+      <div className='md:w-1/2'>
+      <Image
+        src={"/images/cook.png"}
+        width={1000}
+        height={1000}
 
-      {props.PaymentResponse.status}
-    </DefaultLayout>
+        classNames={{
+          img: " w-full ",
+          wrapper: " w-full",
+          // zoomedWrapper: "h-full",
+        }}
+        className="px-5 py-3 md:p-10" alt='confirmation of plan' />
+        </div>
+
+        <div>
+      <h1 className={title({ size: "sm" })}>Congratulations! <br className='hidden md:block'/> You have chosen our <span className={title({ color: "yellow", fontWt: "bold", size: "md" })}>{props.role}</span> Plan </h1>
+
+      <div className='text-xl lg:text-2xl'>
+        <h4 className="text-default-600 my-4 ">Please proceed as follows :</h4>
+        <Button variant='solid' as={Link} href='/otp' color="secondary" className='my-2.5 flex items-center justify-center w-max text-lg'>Verify Phone Number</Button>
+        <Button variant='solid' as={Link} href='/profile' color="default" className='my-2.5 flex items-center justify-center w-max text-lg' endContent={<AiOutlineDoubleRight className='inline  text-xl  my-2 self-center content-center ml-1 ' />}>Go to Dashboard</Button>
+
+      </div>
+      </div>
+    </div>
   )
 }
 
@@ -159,6 +186,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   return {
     props: {
       PaymentResponse,
+      role
 
     },
   };

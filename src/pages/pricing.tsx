@@ -106,11 +106,11 @@ const Pricing = (user : UserType) => {
 
 
   return (
-    <DefaultLayout>
+    <>
 
 
       <SwiperComponent genPay={generatePayment} role={user.role} />
-    </DefaultLayout>
+    </>
   )
 }
 

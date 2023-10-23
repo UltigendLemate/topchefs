@@ -168,24 +168,14 @@ export const validationSchema = Yup.object().shape({
   // emailVerified: Yup.date().nullable(),
   phone: Yup.string().required(),
   currentDes: Yup.string().nullable(),
-  Establishment: Yup.string().test(
-    "word-limit",
-    "Exceeded word limit",
-    (value) => {
-      if (!value) {
-        return true;
-      }
-      const words = value.split(" ");
-      // console.log("ye hai establishment: ",words);
-      return words.length < 5;
-    },
-  ),
+  Establishment: Yup.string().nullable(),
+
   // Establishment: Yup.string().max(5,"kya kar raha hai bhai").nullable(),
   City: Yup.string().nullable(),
   Address: Yup.string().nullable(),
   Education: Yup.string().nullable(),
   Experience: Yup.number().nullable(),
-  Intro: Yup.string().test("word-limit", "Exceeded word limit", (value) => {
+  Intro: Yup.string().test("word-limit", "Exceeded word limit!", (value) => {
     if (!value) {
       return true;
     }
@@ -201,7 +191,7 @@ export const validationSchema = Yup.object().shape({
   snapchat: Yup.string().nullable(),
   twitter: Yup.string().nullable(),
   ChefImage: Yup.string().nullable(),
-  Awards: Yup.string().test("word-limit", "Exceeded word limit", (value) => {
+  Awards: Yup.string().test("word-limit", "Exceeded word limit!", (value) => {
     if (!value) {
       return true;
     }
@@ -215,10 +205,10 @@ export const validationSchema = Yup.object().shape({
   Speciality: Yup.array().of(Yup.string()).nullable(),
   BrandEndorsed: Yup.string().nullable(),
   MediaAppearance: Yup.string()
-    .max(200, "Limit exceeded. Pls make it short")
+    .max(200, "Limit exceeded. Pls make it short!")
     .nullable(),
   AvailableFor: Yup.boolean().nullable(),
   MemberForChef: Yup.string()
-    .max(200, "Limit exceeded. Pls make it short")
+    .max(200, "Limit exceeded. Pls make it short!")
     .nullable(),
 });

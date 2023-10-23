@@ -47,7 +47,7 @@ const Dragdropfile = ({
 				onDrop={handleDrop}
 				onClick={() => inputRef.current?.click()}
 				style={{ background: isHovering ? 'lightgray' : 'white' }}
-				className='border-slate-400 relative my-3 mx-auto w-full justify-center rounded-md border-2 border-dashed bg-green-700 text-center z-[9999]'
+				className='border-slate-400 relative my-3 mx-auto w-full justify-center rounded-md border-2 border-dashed text-center'
 			>
 				<input
 					ref={inputRef}

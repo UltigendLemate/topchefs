@@ -35,7 +35,7 @@ const Otp = (props : subsetUser) => {
   const [phone, setphone] = useState(props.phone);
   const [name, setname] = useState(props.name);
   const [email , setemail] = useState(props.email);
-  const [disabled, setDisabled] = useState(false); //send otp button disabled
+  // const [disabled, setDisabled] = useState(false); //send otp button disabled
   const [otpsent, setOtpsent] = useState(false); //initially false, when send otp is pressed, 
   //then it is true, when otp is verified, then it is false again
   const [verified, setverified] = useState('');
@@ -44,6 +44,14 @@ const Otp = (props : subsetUser) => {
 
 
   const handleSubmit = (phone : string) => {
+    if (phone.length != 10) {
+      failure("Please enter a valid phone number");
+      // clearInterval(interval);
+      setOtpsent(false);
+      setIsTimerRunning(false); // Timer finished
+      // setDisabled(false);
+      return;
+    }
     fetch(`/api/sendOTP`, {
       method: 'POST',
       body : JSON.stringify({phone : phone}),
@@ -200,7 +208,7 @@ const Otp = (props : subsetUser) => {
 
   useEffect(() => {
     if (isTimerRunning) {
-      const endTime = moment().add(2, "minutes");
+      const endTime = moment().add(1, "minutes");
 
       const interval = setInterval(() => {
         const timeDiff = moment.duration(endTime.diff(moment()));
@@ -212,8 +220,9 @@ const Otp = (props : subsetUser) => {
 
         if (moment() > endTime) {
           clearInterval(interval);
+          setOtpsent(false);
           setIsTimerRunning(false); // Timer finished
-          setDisabled(false); // Enable the button
+          // setDisabled(false); // Enable the button
         }
       }, 1000);
 
@@ -228,7 +237,7 @@ const Otp = (props : subsetUser) => {
     {loading ? (
       <div>loading</div>
     ) : 
-  (    <DefaultLayout>
+  (    <>
     <ToastContainer
       position="top-center"
       autoClose={5000}
@@ -305,7 +314,7 @@ const Otp = (props : subsetUser) => {
           <Button
             color="primary"
             onClick={handleClick}
-            isDisabled={disabled}
+            isDisabled={otpsent}
             id="send-otp-button"
             className={otpsent ? "hidden" : "block"}
           >
@@ -315,16 +324,9 @@ const Otp = (props : subsetUser) => {
         {(isTimerRunning || otpsent) && (
           <p className="my-2 text-center text-sm">
             Not Recieved?{" "}
-            <label
-              htmlFor="send-otp-button"
-              className={
-                isTimerRunning
-                  ? "text-blue-100"
-                  : "text-blue-500 hover:text-blue-500"
-              }
-            >
+            
               Send again
-            </label>{" "}
+            
             in {timeRemaining}
           </p>
         )}
@@ -343,7 +345,7 @@ const Otp = (props : subsetUser) => {
         )}
       </form>
     </div>
-  </DefaultLayout>)}
+  </>)}
   </>
 
   );

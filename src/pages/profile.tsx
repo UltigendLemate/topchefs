@@ -14,8 +14,9 @@ import {
   Button,
   Accordion,
   AccordionItem,
-  Link
+ 
 } from "@nextui-org/react";
+import Link from "next/link";
 import { getSession, useSession } from "next-auth/react";
 import {
   UserSchema,
@@ -120,6 +121,11 @@ const Profile = (props: { user: any }) => {
     // e.preventDefault();
     setloading(true);
     let newSignatureDish = Array.from(data.SignatureDish ?? []);
+
+    if (data.phone==""){
+      failure("Please verify your phone number first!");
+      return;
+    }
 
 
     if (upImages.length + newSignatureDish.length > 6) {
@@ -279,6 +285,7 @@ const Profile = (props: { user: any }) => {
     {
       heading: 'Enhance Your Profile',
       disable: props.user.plan == "Free",
+      // disable: true,
       subHeading: "This section is only available to starter plan users!",
       content: (
         <div>
@@ -480,13 +487,19 @@ const Profile = (props: { user: any }) => {
 
           <Select
             variant="underlined"
-            label="Speciality Tags"
+            label="Speciality Tags (Max 2)"
             selectionMode="multiple"
+            // maxSelectedOptions={2}
             className="max-w-xs"
             description="Select all that apply"
             selectedKeys={data.Speciality ? data.Speciality : undefined}
             onSelectionChange={(e) => {
               const des = Array.from(e);
+              if (des.length > 2) {
+                failure("Maximum 2 tags allowed!");
+                return;
+              }
+              // console.log(des);
               setData({
                 ...data,
                 Speciality: des.map((des) => String(des)),
@@ -605,7 +618,7 @@ const Profile = (props: { user: any }) => {
             name="MemberForChef"
             type="text"
             as={Input}
-            label="Have you made any media appearances?"
+            label="Are you a part of any chef association? Mention names."
             variant="underlined"
             className="mt-3"
             value={data.MemberForChef}
@@ -672,10 +685,10 @@ const Profile = (props: { user: any }) => {
         theme="light"
       />
       {loading ? (
-        <div>loading</div>
+        <div className="h-[100vh] z-[99] bg-foreground-50 text-foreground-900 w-[100vw] left-0 fixed top-0">loading</div>
       ) : (
 
-        <DefaultLayout>
+        <>
           {/* basic details  */}
 
           <Formik
@@ -815,7 +828,7 @@ const Profile = (props: { user: any }) => {
               </Button>
             </Form>
           </Formik>
-        </DefaultLayout>
+        </>
 
       )}
     </>

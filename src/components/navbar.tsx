@@ -1,7 +1,6 @@
 import {
 	Button,
 	Kbd,
-	Link,
 	Input,
 	Navbar as NextUINavbar,
 	NavbarContent,
@@ -20,7 +19,7 @@ import { signIn, signOut } from "next-auth/react";
 
 import { link as linkStyles } from "@nextui-org/theme";
 import { siteConfig } from "~/config/site";
-import NextLink from "next/link";
+import Link  from "next/link";
 import clsx from "clsx";
 
 import { ThemeSwitch } from "~/components/theme-switch";
@@ -32,13 +31,17 @@ import {
 import { Logo } from "~/components/icons";
 
 import { useSession } from "next-auth/react";
+import Loading from "./Loading";
+import { useRouter } from "next/router";
 
 
 
 export const Navbar = () => {
     // const session = useSession().data;
+	
 
 	const { data: session, status } = useSession()
+
 
 	const [userData, setuserData] = useState<UserType>({} as UserType);
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -98,19 +101,22 @@ export const Navbar = () => {
 
     
 	return (
+		<>
+		{/* {isLoading && <Loading />} */}
+
 		<NextUINavbar maxWidth="xl" position="sticky" isMenuOpen={isMenuOpen} onMenuOpenChange={setIsMenuOpen}>
 			<NavbarContent className="basis-1/5 sm:basis-full" justify="start">
 				<NavbarBrand as="li" className="gap-3 max-w-fit">
-					<NextLink className="flex justify-start items-center gap-1" href="/">
+					<Link className="flex justify-start items-center gap-1" href="/">
 						<Logo />
 						<p className="font-bold text-inherit">TopChefs </p>
-					</NextLink>
+					</Link>
 				</NavbarBrand>
 				<ul className="hidden lg:flex gap-4 justify-start ml-2">
 					
 					{siteConfig.navItems.map((item) => (
 						<NavbarItem key={item.href}>
-							<NextLink
+							<Link
 								className={clsx(
 									linkStyles({ color: "foreground" }),
 									"data-[active=true]:text-primary data-[active=true]:font-medium"
@@ -119,7 +125,7 @@ export const Navbar = () => {
 								href={item.href}
 							>
 								{item.label}
-							</NextLink>
+							</Link>
 						</NavbarItem>
 					))}
 				</ul>
@@ -138,7 +144,8 @@ export const Navbar = () => {
 						<InstaIcon className="text-default-500" />
 					</Link> */}
 					{status == "authenticated" && 
-					<Button color="primary" variant="flat" as={Link} href="/pricing" className=" font-mont font-bold">{userData.role}</Button>}
+					
+					<Link href="/pricing" className=" font-mont font-bold text-primary-700 bg-primary-200 px-4 py-1 rounded-lg bg-opacity-50">{userData.role}</Link>}
 					
 					<ThemeSwitch />
 				</NavbarItem>
@@ -158,7 +165,10 @@ export const Navbar = () => {
 							Register
 						</Button>) :
 						(
-                            <Avatar src={session.user?.image ?? '/default-image.jpg'} as={Link} href="/profile" size="sm" />
+							
+                            <Avatar src={session.user?.image ?? '/default-image.jpg'} as={Link}  href="/profile" size="sm" />
+							
+
 
 				
 						)}
@@ -171,7 +181,8 @@ export const Navbar = () => {
 			
 
 				{status == "authenticated" && 
-					<Button color="primary" variant="flat" as={Link} href="/pricing" className=" font-mont font-bold">{userData.role}</Button>}
+				<Link href="/pricing" className=" font-mont font-bold text-primary-700 bg-primary-200 px-4 py-2.5 rounded-lg bg-opacity-50">{userData.role}</Link>
+					}
 				</NavbarItem>
 				<ThemeSwitch />
 				
@@ -207,7 +218,7 @@ export const Navbar = () => {
 								color="foreground"
 			
 								href={item.href}
-								size="lg"
+								
 								className="text-2xl"
 							>
 								{item.label}
@@ -247,15 +258,16 @@ export const Navbar = () => {
 				</div>
 				<NavbarItem className="flex sm:hidden mx-auto mt-7 gap-2">
 
-					<Link isExternal href={siteConfig.links.whatsapp} aria-label="Whatsapp">
+					<Link href={siteConfig.links.whatsapp} aria-label="Whatsapp">
 						<WhatsappIcon className="text-default-500" />
 					</Link>
-					<Link isExternal href={siteConfig.links.instagram} aria-label="Instagram">
+					<Link href={siteConfig.links.instagram} aria-label="Instagram">
 						<InstaIcon className="text-default-500" />
 					</Link>
 					{/* <ThemeSwitch /> */}
 				</NavbarItem>
 			</NavbarMenu>
 		</NextUINavbar>
+		</>
 	);
 };

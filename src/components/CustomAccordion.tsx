@@ -1,7 +1,6 @@
-import { useState, ReactNode }  from 'react';
+import { useState, ReactNode, useEffect }  from 'react';
 import { title , subtitle } from "~/components/primitives";
 import {AiOutlineLeft, AiOutlineDown} from 'react-icons/ai';
-import { useTheme } from 'next-themes';
 import { types } from "util";
 
 
@@ -33,12 +32,15 @@ function CustomAccordionItem({
   subHeading : string;
   toggleItem: () => void;
 }) {
-  const { theme, setTheme } = useTheme();
+ 
+
+  
+
+
 
 
   return (
-    <div className={`p-5    bg-opacity-30 shadow-sm rounded-lg shadow-gray-600 relative
-     ${theme == 'light'? "bg-gray-200":"bg-gray-800"}`}>
+    <div className={`p-5 bg-opacity-30 shadow-sm  shadow-gray-600 relative bg-default-200 rounded-lg`}>
 
       <div className="cursor-pointer" onClick={toggleItem}>
         <div className={`flex justify-between items-center ${disable ? " opacity-50":""}`}>
