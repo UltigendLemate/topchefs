@@ -84,8 +84,13 @@ const pricing: Pricing = {
   }
 }
 
-export const SwiperComponent = ({ genPay, role }) => {
-  // console.log(pricing);
+
+type SwiperComponentProps = {
+  genPay: (amount: number, plan: string) => void;
+  role: string;
+};
+
+export const SwiperComponent = ({ genPay, role }: SwiperComponentProps) => {
   const router = useRouter();
 
   const PricingKeys = Object.keys(pricing);
@@ -150,7 +155,7 @@ export const SwiperComponent = ({ genPay, role }) => {
               </h5>
             </div>
             <div className="flex flex-col gap-2 md:gap-2.5 text-xs sm:text-sm md:text-base">
-              {pricing[plan].tick?.map((item: string, index: string) =>
+              {pricing[plan as keyof Pricing].tick?.map((item: string, index: number) =>
                 <div className="flex gap-2" key={index}>
 
                   <TickIcon />
@@ -158,7 +163,9 @@ export const SwiperComponent = ({ genPay, role }) => {
 
                 </div>
               )}
-              {pricing[plan].wrong?.map((item: string, index: string) =>
+
+              
+              {pricing[plan as keyof Pricing].wrong?.map((item: string, index: number) =>
                 <div className="flex gap-2" key={index}>
 
                   <CrossIcon />
