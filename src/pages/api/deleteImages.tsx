@@ -3,6 +3,7 @@ import cloudinary from 'cloudinary';
 import { NextApiRequest, NextApiResponse } from "next";
 import cloudinaryConfig from '~/utils/cloudinaryConfig';
 
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -28,7 +29,7 @@ export default async function handler(
 
 
   try {
-    await cloudinary.api.delete_resources(delIds);
+    await cloudinary.v2.api.delete_resources(delIds);
     return res.status(200).json({ message: 'Files deleted successfully' });
   } catch (error) {
     return res.status(500).json({ error});
