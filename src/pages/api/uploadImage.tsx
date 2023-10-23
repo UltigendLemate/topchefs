@@ -1,7 +1,7 @@
 /*eslint-disable*/
 import { NextApiRequest, NextApiResponse } from "next";
 import { env } from "~/env.mjs";
-import formidable from 'formidable-serverless';
+import formidable from 'formidable';
 import cloudinary from 'cloudinary';
 // import fs from 'fs';
 import cloudinaryConfig from "~/utils/cloudinaryConfig";
@@ -17,7 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ error: 'Method not allowed.' });
   }
     const form = new formidable.IncomingForm();
-    form.parse(req, (err: any, fields: any, files: { file: { path: any; }; } ) => {
+    form.parse(req, (err: any, fields: any, files: any ) => {
       if (err) {
         return res.status(500).json({ error: 'Error parsing form data.' });
       }
