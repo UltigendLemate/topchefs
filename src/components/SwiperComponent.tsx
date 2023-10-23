@@ -86,7 +86,7 @@ const pricing: Pricing = {
 
 
 type SwiperComponentProps = {
-  genPay: (amount: number, plan: string) => void;
+  genPay: (amount: number, plan: string) => Promise<void | never>;
   role: string;
 };
 
