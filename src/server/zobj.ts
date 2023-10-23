@@ -166,7 +166,7 @@ export const validationSchema = Yup.object().shape({
   role: Yup.string().required(),
   email: Yup.string().email().required(),
   // emailVerified: Yup.date().nullable(),
-  phone: Yup.string().required(),
+  phone: Yup.string().nullable(),
   currentDes: Yup.string().nullable(),
   Establishment: Yup.string().nullable(),
 
@@ -182,10 +182,10 @@ export const validationSchema = Yup.object().shape({
     const words = value.split(" ");
     // console.log("ye hai establishment: ",words);
     return words.length < 50;
-  }),
+  }).nullable(),
   image: Yup.string().nullable(),
   linkedin: Yup.string().nullable(),
-  instagram: Yup.string().nullable(),
+  instagram: Yup.string().nullable(), 
   website: Yup.string().nullable(),
   facebook: Yup.string().nullable(),
   snapchat: Yup.string().nullable(),
@@ -198,7 +198,7 @@ export const validationSchema = Yup.object().shape({
     const words = value.split(" ");
     // console.log("ye hai establishment: ",words);
     return words.length < 50;
-  }),
+  }).nullable(),
   CuisineSpecialization: Yup.array().of(Yup.string()).nullable(),
   PrevWork: Yup.string().nullable(),
   SignatureDish: Yup.array().of(Yup.string()).nullable(),

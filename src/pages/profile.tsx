@@ -124,6 +124,7 @@ const Profile = (props: { user: any }) => {
 
     if (data.phone==""){
       failure("Please verify your phone number first!");
+      setloading(false);
       return;
     }
 
