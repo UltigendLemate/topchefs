@@ -122,9 +122,9 @@ const Profile = (props: { user: any }) => {
     setloading(true);
     let newSignatureDish = Array.from(data.SignatureDish ?? []);
 
-    if (data.phone==""){
-      failure("Please verify your phone number first!");
+    if (!data.phone || data.phone.length < 10){
       setloading(false);
+      failure("Please verify your phone number first!");
       return;
     }
 
